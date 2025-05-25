@@ -9,7 +9,131 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      grocery_lists: {
+        Row: {
+          completed_items: Json | null
+          created_at: string | null
+          id: string
+          items: Json
+          meal_plan_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_items?: Json | null
+          created_at?: string | null
+          id?: string
+          items?: Json
+          meal_plan_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_items?: Json | null
+          created_at?: string | null
+          id?: string
+          items?: Json
+          meal_plan_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_lists_meal_plan_id_fkey"
+            columns: ["meal_plan_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grocery_lists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_plans: {
+        Row: {
+          created_at: string | null
+          id: string
+          meals: Json
+          title: string
+          total_calories: number | null
+          user_id: string
+          week_start_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          meals?: Json
+          title: string
+          total_calories?: number | null
+          user_id: string
+          week_start_date: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          meals?: Json
+          title?: string
+          total_calories?: number | null
+          user_id?: string
+          week_start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          budget_preference: string | null
+          created_at: string | null
+          dietary_preferences: string[] | null
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          location: string | null
+          stripe_customer_id: string | null
+          subscription_tier: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          budget_preference?: string | null
+          created_at?: string | null
+          dietary_preferences?: string[] | null
+          email?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          location?: string | null
+          stripe_customer_id?: string | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          budget_preference?: string | null
+          created_at?: string | null
+          dietary_preferences?: string[] | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          location?: string | null
+          stripe_customer_id?: string | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
