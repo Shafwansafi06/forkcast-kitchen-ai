@@ -32,6 +32,8 @@ const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
         const { error } = await signIn(email, password);
         if (error) throw error;
         toast.success('Welcome back!');
+        // Redirect to dashboard after successful login
+        window.location.href = '/dashboard';
       }
     } catch (error: any) {
       toast.error(error.message || 'An error occurred');
@@ -45,9 +47,11 @@ const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
       <Card className="w-full max-w-md bg-slate-800/50 border-slate-700">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">F</span>
-            </div>
+            <img 
+              src="/lovable-uploads/dd7827cf-89f3-4055-834d-3bcaf26d741f.png" 
+              alt="ForkCast Logo" 
+              className="w-8 h-8"
+            />
             <span className="text-white font-semibold text-lg">ForkCast</span>
           </div>
           <CardTitle className="text-white text-2xl">

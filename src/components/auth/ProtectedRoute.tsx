@@ -1,7 +1,5 @@
 
 import { useAuth } from '@/contexts/AuthContext';
-import AuthForm from './AuthForm';
-import { useState } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,7 +7,6 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
 
   if (loading) {
     return (
@@ -20,12 +17,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!user) {
-    return (
-      <AuthForm
-        mode={authMode}
-        onToggleMode={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')}
-      />
-    );
+    // Redirect to landing page instead of showing auth form directly
+    window.location.href = '/';
+    return null;
   }
 
   return <>{children}</>;
