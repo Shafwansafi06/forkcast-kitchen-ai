@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Dashboard from "@/components/Dashboard";
 import MealPlan from "@/components/MealPlan";
@@ -8,6 +8,15 @@ import Settings from "@/components/Settings";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Handle URL tab parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab && ['dashboard', 'meal-plan', 'grocery-list', 'settings'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, []);
 
   const renderContent = () => {
     switch (activeTab) {

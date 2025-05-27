@@ -1,232 +1,372 @@
 
-import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
-import AuthForm from "@/components/auth/AuthForm";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useAuth } from '@/contexts/AuthContext';
+import { ChefHat, Sparkles, Clock, DollarSign, Users, Check } from 'lucide-react';
 
 const Landing = () => {
-  const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [isScrolled, setIsScrolled] = useState(false);
+  const { signIn, signUp } = useAuth();
+  const [step, setStep] = useState('welcome'); // welcome, preferences, subscription, auth
+  const [preferences, setPreferences] = useState({
+    vegetarian: false,
+    vegan: false,
+    glutenFree: false,
+    keto: false,
+    dairyFree: false,
+    nutFree: false
+  });
+  const [authMode, setAuthMode] = useState('signup');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const handlePreferenceChange = (pref, checked) => {
+    setPreferences(prev => ({ ...prev, [pref]: checked }));
+  };
 
-  if (showAuth) {
-    return (
-      <AuthForm
-        mode={authMode}
-        onToggleMode={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')}
-      />
-    );
-  }
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      if (authMode === 'signup') {
+        await signUp(email, password);
+        // Store preferences in localStorage to be saved to profile later
+        localStorage.setItem('pending_preferences', JSON.stringify(preferences));
+        window.location.href = '/dashboard';
+      } else {
+        await signIn(email, password);
+        window.location.href = '/dashboard';
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+    }
+    setLoading(false);
+  };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col overflow-x-hidden">
-      {/* Sticky Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-slate-900/95 backdrop-blur-sm border-b border-slate-700' : 'bg-transparent'
-      }`}>
-        <div className="flex justify-between items-center p-6 max-w-7xl mx-auto">
-          <div className="flex items-center gap-3">
-            <img 
-              src="/lovable-uploads/7e6d5a14-4cec-4e9c-8eb9-1baed98bed9a.png" 
-              alt="ForkCast Logo" 
-              className="w-10 h-10 animate-pulse"
-            />
+  const startFreeTrial = () => {
+    setStep('auth');
+    setAuthMode('signup');
+  };
+
+  const WelcomeStep = () => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Header */}
+      <header className="absolute top-0 left-0 right-0 z-50 p-6">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">F</span>
+            </div>
             <span className="text-white font-bold text-xl">ForkCast</span>
           </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setAuthMode('signin');
-                setShowAuth(true);
-              }}
-              className="border-slate-600 bg-slate-800/50 text-slate-300 hover:bg-slate-700/80 hover:text-white hover:scale-105 transition-all duration-200 backdrop-blur-sm"
-            >
-              Log In Instead
-            </Button>
-            <Button
-              onClick={() => {
-                setAuthMode('signup');
-                setShowAuth(true);
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white hover:scale-105 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25"
-            >
-              Sign Up
-            </Button>
-          </div>
+          <Button 
+            variant="outline" 
+            className="border-white/20 text-white hover:bg-white/10"
+            onClick={() => setStep('auth')}
+          >
+            Log In Instead
+          </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 pt-24">
-        <div className="max-w-4xl mx-auto">
-          {/* Logo with bounce animation */}
-          <div className="animate-fade-in">
-            <img 
-              src="/lovable-uploads/7e6d5a14-4cec-4e9c-8eb9-1baed98bed9a.png" 
-              alt="ForkCast Logo" 
-              className="w-32 h-32 mx-auto mb-8 animate-bounce"
-            />
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/20 rounded-full px-4 py-2 mb-8">
+            <Sparkles className="w-4 h-4 text-blue-400" />
+            <span className="text-blue-400 text-sm font-medium">AI-Powered Meal Planning</span>
           </div>
           
-          {/* Animated headline */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              ForkCast
-            </h1>
-          </div>
+          <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            Plan Perfect Meals with
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> AI Magic</span>
+          </h1>
           
-          {/* Animated subtitle */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
-            <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-2xl mx-auto">
-              AI-powered meal planning that forecasts your perfect week of delicious, 
-              budget-friendly meals tailored to your taste and lifestyle.
-            </p>
-          </div>
+          <p className="text-xl text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Get personalized meal plans, smart grocery lists, and discover amazing recipes tailored to your taste, budget, and dietary needs.
+          </p>
           
-          {/* Social proof */}
-          <div className="animate-fade-in mb-8" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
-            <div className="flex items-center justify-center gap-4 text-slate-400 text-sm mb-4">
-              <span>⭐⭐⭐⭐⭐</span>
-              <span>Trusted by 10,000+ meal planners</span>
-            </div>
-            <div className="flex items-center justify-center gap-6 text-slate-500 text-xs">
-              <span>As featured in:</span>
-              <span className="font-semibold">TechCrunch</span>
-              <span className="font-semibold">Food & Wine</span>
-              <span className="font-semibold">Bon Appétit</span>
-            </div>
-          </div>
-          
-          {/* Animated CTA buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fade-in" style={{ animationDelay: '0.8s', animationFillMode: 'both' }}>
-            <Button
-              size="lg"
-              onClick={() => {
-                setAuthMode('signup');
-                setShowAuth(true);
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-4 hover:scale-105 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95"
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg"
+              onClick={() => setStep('preferences')}
             >
               Get Started Free
+              <ChefHat className="w-5 h-5 ml-2" />
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => {
-                setAuthMode('signin');
-                setShowAuth(true);
-              }}
-              className="border-slate-600 bg-slate-800/50 text-slate-300 hover:bg-slate-700/80 hover:text-white text-lg px-8 py-4 hover:scale-105 transition-all duration-200 backdrop-blur-sm"
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="border-white/20 text-white hover:bg-white/10 px-8 py-4 text-lg"
             >
-              Log In Instead
+              Watch Demo
             </Button>
           </div>
+          
+          <p className="text-slate-400 text-sm mt-4">
+            ✨ 14-day free trial • No credit card required • Cancel anytime
+          </p>
+        </div>
+      </section>
 
-          {/* Scroll indicator */}
-          <div className="animate-bounce">
-            <ChevronDown className="text-slate-400 w-6 h-6 mx-auto" />
-          </div>
-
-          {/* Video/Demo placeholder */}
-          <div className="mt-16 mb-16 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'both' }}>
-            <div className="bg-slate-800/50 p-8 rounded-lg border border-slate-700 max-w-3xl mx-auto">
-              <div className="aspect-video bg-slate-700 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-white text-2xl">▶</span>
-                  </div>
-                  <p className="text-slate-300 text-lg font-medium">Watch How ForkCast Works</p>
-                  <p className="text-slate-400 text-sm">2-minute demo video</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Enhanced Features Grid */}
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 group animate-fade-in" style={{ animationDelay: '1.2s', animationFillMode: 'both' }}>
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4 mx-auto group-hover:animate-pulse">
-                <span className="text-white text-xl">🤖</span>
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-2">AI-Powered Planning</h3>
-              <p className="text-blue-300 text-sm font-medium mb-2">Save 5+ hours per week</p>
-              <p className="text-slate-400">
-                Smart meal suggestions based on your preferences, dietary needs, and budget.
-              </p>
-            </div>
+      {/* Features */}
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-white text-center mb-16">
+            Why Choose ForkCast?
+          </h2>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <Clock className="w-8 h-8 text-blue-400 mb-2" />
+                <CardTitle className="text-white">Save 5+ Hours Weekly</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-300">
+                  Stop wondering "what's for dinner?" AI creates perfect meal plans in seconds based on your preferences.
+                </p>
+              </CardContent>
+            </Card>
             
-            <div className="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:scale-105 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300 group animate-fade-in" style={{ animationDelay: '1.4s', animationFillMode: 'both' }}>
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4 mx-auto group-hover:animate-bounce">
-                <span className="text-white text-xl">📋</span>
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-2">Smart Grocery Lists</h3>
-              <p className="text-green-300 text-sm font-medium mb-2">Never forget an ingredient</p>
-              <p className="text-slate-400">
-                Automatically generated shopping lists organized by store sections.
-              </p>
-            </div>
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <DollarSign className="w-8 h-8 text-green-400 mb-2" />
+                <CardTitle className="text-white">Cut Food Costs 30%</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-300">
+                  Smart grocery lists eliminate food waste and help you stick to your budget with price comparisons.
+                </p>
+              </CardContent>
+            </Card>
             
-            <div className="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:scale-105 hover:shadow-lg hover:shadow-yellow-500/10 transition-all duration-300 group animate-fade-in" style={{ animationDelay: '1.6s', animationFillMode: 'both' }}>
-              <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mb-4 mx-auto group-hover:animate-pulse">
-                <span className="text-white text-xl">💰</span>
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-2">Budget Tracking</h3>
-              <p className="text-yellow-300 text-sm font-medium mb-2">Save up to 30% on groceries</p>
-              <p className="text-slate-400">
-                Stay within budget with cost-conscious meal recommendations.
-              </p>
-            </div>
-          </div>
-
-          {/* Testimonials Section */}
-          <div className="mt-20 mb-16 animate-fade-in" style={{ animationDelay: '1.8s', animationFillMode: 'both' }}>
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">What Our Users Say</h2>
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <div className="bg-slate-800/30 p-6 rounded-lg border border-slate-700">
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mr-3">
-                    <span className="text-white font-bold">S</span>
-                  </div>
-                  <div>
-                    <p className="text-white font-medium">Sarah M.</p>
-                    <p className="text-slate-400 text-sm">Busy Mom of 3</p>
-                  </div>
-                </div>
-                <p className="text-slate-300">"ForkCast has revolutionized our family meal planning. I save hours every week and we're eating healthier than ever!"</p>
-              </div>
-              
-              <div className="bg-slate-800/30 p-6 rounded-lg border border-slate-700">
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center mr-3">
-                    <span className="text-white font-bold">M</span>
-                  </div>
-                  <div>
-                    <p className="text-white font-medium">Mike R.</p>
-                    <p className="text-slate-400 text-sm">College Student</p>
-                  </div>
-                </div>
-                <p className="text-slate-300">"Perfect for my budget and dietary restrictions. The AI suggestions are spot-on every time!"</p>
-              </div>
-            </div>
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <Users className="w-8 h-8 text-purple-400 mb-2" />
+                <CardTitle className="text-white">Loved by 50K+ Families</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-300">
+                  Join thousands of happy families who've transformed their meal planning with ForkCast.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="text-center p-6 text-slate-500 border-t border-slate-800">
-        <p>&copy; 2025 ForkCast. Your AI kitchen companion.</p>
-      </footer>
+      </section>
     </div>
   );
+
+  const PreferencesStep = () => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+      <Card className="w-full max-w-2xl bg-slate-800/50 border-slate-700">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl text-white">Tell us about your food preferences</CardTitle>
+          <p className="text-slate-400">We'll personalize your meal plans based on your dietary needs</p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(preferences).map(([key, checked]) => (
+              <div key={key} className="flex items-center space-x-3 p-3 rounded-lg bg-slate-700/30">
+                <Checkbox 
+                  checked={checked}
+                  onCheckedChange={(checked) => handlePreferenceChange(key, checked)}
+                />
+                <span className="text-slate-300 font-medium">
+                  {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                </span>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex gap-4">
+            <Button 
+              variant="outline" 
+              className="flex-1 border-slate-600 text-slate-300"
+              onClick={() => setStep('welcome')}
+            >
+              Back
+            </Button>
+            <Button 
+              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              onClick={() => setStep('subscription')}
+            >
+              Continue
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const SubscriptionStep = () => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+      <div className="w-full max-w-4xl">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-white mb-4">Choose Your Plan</h2>
+          <p className="text-slate-400 text-lg">Start with a 14-day free trial, then continue for just $9.99/month</p>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Free Trial */}
+          <Card className="bg-slate-800/50 border-slate-700 relative">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <span className="bg-green-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+                Start Here
+              </span>
+            </div>
+            <CardHeader className="text-center pt-8">
+              <CardTitle className="text-2xl text-white">Free Trial</CardTitle>
+              <div className="text-4xl font-bold text-white mt-4">$0</div>
+              <p className="text-slate-400">14 days free</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-400" />
+                  <span className="text-slate-300">Unlimited AI meal plans</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-400" />
+                  <span className="text-slate-300">Smart grocery lists</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-400" />
+                  <span className="text-slate-300">Recipe recommendations</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-400" />
+                  <span className="text-slate-300">Kroger integration</span>
+                </div>
+              </div>
+              <Button 
+                className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
+                onClick={startFreeTrial}
+              >
+                Start 14-Day Free Trial
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Pro Plan */}
+          <Card className="bg-gradient-to-br from-blue-600/10 to-purple-600/10 border-blue-500/20">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl text-white">Pro Plan</CardTitle>
+              <div className="text-4xl font-bold text-white mt-4">$9.99</div>
+              <p className="text-slate-400">per month after trial</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-blue-400" />
+                  <span className="text-slate-300">Everything in Free Trial</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-blue-400" />
+                  <span className="text-slate-300">Advanced nutrition tracking</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-blue-400" />
+                  <span className="text-slate-300">Family meal planning</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-blue-400" />
+                  <span className="text-slate-300">Priority support</span>
+                </div>
+              </div>
+              <Button 
+                variant="outline"
+                className="w-full border-blue-500/20 text-blue-400 hover:bg-blue-600/10"
+                onClick={startFreeTrial}
+              >
+                Try Free, Then $9.99/month
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="text-center mt-8">
+          <Button 
+            variant="ghost" 
+            className="text-slate-400 hover:text-white"
+            onClick={() => setStep('preferences')}
+          >
+            Back to Preferences
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const AuthStep = () => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+      <Card className="w-full max-w-md bg-slate-800/50 border-slate-700">
+        <CardHeader className="text-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-bold text-lg">F</span>
+          </div>
+          <CardTitle className="text-2xl text-white">
+            {authMode === 'signup' ? 'Create Your Account' : 'Welcome Back'}
+          </CardTitle>
+          <p className="text-slate-400">
+            {authMode === 'signup' ? 'Start your 14-day free trial' : 'Sign in to your account'}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleAuth} className="space-y-4">
+            <Input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="bg-slate-700 border-slate-600 text-white"
+              required
+            />
+            <Input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="bg-slate-700 border-slate-600 text-white"
+              required
+            />
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              disabled={loading}
+            >
+              {loading ? 'Please wait...' : (authMode === 'signup' ? 'Start Free Trial' : 'Sign In')}
+            </Button>
+          </form>
+          
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              className="text-slate-400 hover:text-white"
+              onClick={() => setAuthMode(authMode === 'signup' ? 'signin' : 'signup')}
+            >
+              {authMode === 'signup' ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const steps = {
+    welcome: <WelcomeStep />,
+    preferences: <PreferencesStep />,
+    subscription: <SubscriptionStep />,
+    auth: <AuthStep />
+  };
+
+  return steps[step];
 };
 
 export default Landing;

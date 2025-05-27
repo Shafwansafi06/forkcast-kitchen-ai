@@ -4,24 +4,93 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { useProfile } from "@/hooks/useProfile";
+import { toast } from "sonner";
+import { Loader2, ChefHat } from "lucide-react";
 
 const MealPlan = () => {
+  const { profile } = useProfile();
+  const [mealPlan, setMealPlan] = useState({});
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [preferences, setPreferences] = useState({
+    vegetarian: profile?.dietary_preferences?.includes('vegetarian') || false,
+    vegan: profile?.dietary_preferences?.includes('vegan') || false,
+    glutenFree: profile?.dietary_preferences?.includes('gluten_free') || false,
+    keto: profile?.dietary_preferences?.includes('keto') || false,
+  });
+  const [calorieTarget, setCalorieTarget] = useState([2000]);
+  const [proteinTarget, setProteinTarget] = useState([150]);
+  const [mealFrequency, setMealFrequency] = useState([3]);
+  const [weeklyBudget, setWeeklyBudget] = useState([120]);
+  const [cookingTimeLimit, setCookingTimeLimit] = useState("30");
+  const [allergies, setAllergies] = useState("");
+
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
-  const mealData = {
-    Monday: { breakfast: 'Spinach Omelette', lunch: 'Quinoa Salad', dinner: 'Grilled Salmon' },
-    Tuesday: { breakfast: 'Greek Yogurt Bowl', lunch: 'Buddha Bowl', dinner: 'Chicken Stir-fry' },
-    Wednesday: { breakfast: 'Avocado Toast', lunch: 'Lentil Soup', dinner: 'Chicken Fajita Bowl' },
-    Thursday: { breakfast: 'Spinach Frittata', lunch: 'Caprese Salad', dinner: 'Beef Tacos' },
-    Friday: { breakfast: 'Overnight Oats', lunch: 'Veggie Wrap', dinner: 'Teriyaki Tofu' },
-    Saturday: { breakfast: 'Pancakes', lunch: 'Caesar Salad', dinner: 'Pizza Night' },
-    Sunday: { breakfast: 'French Toast', lunch: 'Soup & Sandwich', dinner: 'Roast Chicken' }
+
+  useEffect(() => {
+    // Load existing meal plan if available
+    const savedMealPlan = localStorage.getItem('forkcast_meal_plan');
+    if (savedMealPlan) {
+      setMealPlan(JSON.parse(savedMealPlan));
+    }
+  }, []);
+
+  const generateMealPlan = async () => {
+    if (!profile?.subscription_tier || profile.subscription_tier === 'free') {
+      toast.error('Upgrade to Pro to generate unlimited meal plans!');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      // Build dietary restrictions string
+      const dietaryRestrictions = [];
+      if (preferences.vegetarian) dietaryRestrictions.push('vegetarian');
+      if (preferences.vegan) dietaryRestrictions.push('vegan');
+      if (preferences.glutenFree) dietaryRestrictions.push('gluten-free');
+      if (preferences.keto) dietaryRestrictions.push('keto');
+      if (allergies.trim()) dietaryRestrictions.push(`allergic to: ${allergies}`);
+
+      // Generate meal plan for each day
+      const newMealPlan = {};
+      
+      for (const day of days) {
+        const spoonacularUrl = `https://api.spoonacular.com/mealplanner/generate?timeFrame=day&targetCalories=${calorieTarget[0]}&diet=${dietaryRestrictions.join(',')}&apiKey=4b58741481ef44c8ae554ad9193158e8`;
+        
+        const response = await fetch(spoonacularUrl);
+        const dayPlan = await response.json();
+        
+        if (dayPlan.meals) {
+          newMealPlan[day] = {
+            breakfast: dayPlan.meals.find(m => m.id)?.title || 'Healthy Breakfast',
+            lunch: dayPlan.meals.find(m => m.id)?.title || 'Nutritious Lunch', 
+            dinner: dayPlan.meals.find(m => m.id)?.title || 'Delicious Dinner',
+            calories: dayPlan.nutrients?.calories || calorieTarget[0],
+            protein: dayPlan.nutrients?.protein || proteinTarget[0]
+          };
+        }
+      }
+
+      setMealPlan(newMealPlan);
+      localStorage.setItem('forkcast_meal_plan', JSON.stringify(newMealPlan));
+      toast.success('Meal plan generated successfully! 🍽️');
+    } catch (error) {
+      console.error('Error generating meal plan:', error);
+      toast.error('Failed to generate meal plan. Please try again.');
+    }
+    setIsGenerating(false);
   };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-white">Generate New Meal Plan</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-white">Generate New Meal Plan</h1>
+          <p className="text-slate-400 mt-2">Customize your perfect weekly meal plan</p>
+        </div>
+        <ChefHat className="w-8 h-8 text-blue-400" />
       </div>
 
       {/* Meal Plan Generator Form */}
@@ -31,15 +100,13 @@ const MealPlan = () => {
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Dietary Preferences</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: 'Vegetarian', active: true },
-                { label: 'Vegan', active: false },
-                { label: 'Gluten Free', active: false },
-                { label: 'Keto', active: false }
-              ].map((diet) => (
-                <div key={diet.label} className="flex items-center space-x-2">
-                  <Switch checked={diet.active} />
-                  <span className="text-slate-300">{diet.label}</span>
+              {Object.entries(preferences).map(([key, value]) => (
+                <div key={key} className="flex items-center space-x-2">
+                  <Switch 
+                    checked={value} 
+                    onCheckedChange={(checked) => setPreferences(prev => ({ ...prev, [key]: checked }))}
+                  />
+                  <span className="text-slate-300 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
                 </div>
               ))}
             </div>
@@ -49,10 +116,11 @@ const MealPlan = () => {
             {/* Calorie Target */}
             <div>
               <label className="block text-slate-300 text-sm font-medium mb-2">
-                Calorie Target: <span className="text-blue-400">2000 kcal/day</span>
+                Calorie Target: <span className="text-blue-400">{calorieTarget[0]} kcal/day</span>
               </label>
               <Slider
-                value={[2000]}
+                value={calorieTarget}
+                onValueChange={setCalorieTarget}
                 max={3000}
                 min={1200}
                 step={100}
@@ -63,10 +131,11 @@ const MealPlan = () => {
             {/* Protein Target */}
             <div>
               <label className="block text-slate-300 text-sm font-medium mb-2">
-                Protein Target: <span className="text-blue-400">150 g/day</span>
+                Protein Target: <span className="text-blue-400">{proteinTarget[0]} g/day</span>
               </label>
               <Slider
-                value={[150]}
+                value={proteinTarget}
+                onValueChange={setProteinTarget}
                 max={200}
                 min={50}
                 step={10}
@@ -77,61 +146,51 @@ const MealPlan = () => {
 
           {/* Meal Frequency */}
           <div>
-            <label className="block text-slate-300 text-sm font-medium mb-2">Meal Frequency</label>
-            <div className="flex items-center justify-between bg-slate-700 rounded-lg p-1">
-              <span className="text-slate-400 text-sm px-4">1 meal</span>
-              <div className="flex-1 mx-4">
-                <Slider
-                  value={[3]}
-                  max={6}
-                  min={1}
-                  step={1}
-                  className="w-full"
-                />
-              </div>
-              <span className="text-slate-400 text-sm px-4">6 meals</span>
-            </div>
-            <div className="text-center mt-2">
-              <span className="text-blue-400 font-medium">3 meals per day</span>
-            </div>
+            <label className="block text-slate-300 text-sm font-medium mb-2">
+              Meal Frequency: <span className="text-blue-400">{mealFrequency[0]} meals per day</span>
+            </label>
+            <Slider
+              value={mealFrequency}
+              onValueChange={setMealFrequency}
+              max={6}
+              min={1}
+              step={1}
+              className="w-full"
+            />
           </div>
 
           {/* Weekly Budget */}
           <div>
-            <label className="block text-slate-300 text-sm font-medium mb-2">Weekly Budget</label>
-            <div className="flex items-center justify-between bg-slate-700 rounded-lg p-1">
-              <span className="text-slate-400 text-sm px-4">$50</span>
-              <div className="flex-1 mx-4">
-                <Slider
-                  value={[120]}
-                  max={200}
-                  min={50}
-                  step={10}
-                  className="w-full"
-                />
-              </div>
-              <span className="text-slate-400 text-sm px-4">$200</span>
-            </div>
-            <div className="text-center mt-2">
-              <span className="text-blue-400 font-medium">$120 per week</span>
-            </div>
+            <label className="block text-slate-300 text-sm font-medium mb-2">
+              Weekly Budget: <span className="text-blue-400">${weeklyBudget[0]} per week</span>
+            </label>
+            <Slider
+              value={weeklyBudget}
+              onValueChange={setWeeklyBudget}
+              max={200}
+              min={50}
+              step={10}
+              className="w-full"
+            />
           </div>
 
           {/* Allergies & Restrictions */}
           <div>
             <label className="block text-slate-300 text-sm font-medium mb-2">Allergies & Restrictions</label>
-            <div className="flex items-center gap-2 text-slate-400">
-              <span>🚫</span>
-              <span>e.g. peanuts, shellfish, dairy...</span>
-            </div>
+            <Input
+              value={allergies}
+              onChange={(e) => setAllergies(e.target.value)}
+              placeholder="e.g. peanuts, shellfish, dairy..."
+              className="bg-slate-700 border-slate-600 text-slate-300"
+            />
           </div>
 
           {/* Cooking Time Limit */}
           <div>
             <label className="block text-slate-300 text-sm font-medium mb-2">Cooking Time Limit</label>
-            <Select>
+            <Select value={cookingTimeLimit} onValueChange={setCookingTimeLimit}>
               <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-300">
-                <SelectValue placeholder="30 minutes or less" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="15">15 minutes or less</SelectItem>
@@ -142,42 +201,57 @@ const MealPlan = () => {
             </Select>
           </div>
 
-          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">
-            🤖 Generate AI Meal Plan
+          <Button 
+            onClick={generateMealPlan}
+            disabled={isGenerating}
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Generating Your Perfect Meal Plan...
+              </>
+            ) : (
+              <>
+                🤖 Generate AI Meal Plan
+              </>
+            )}
           </Button>
         </CardContent>
       </Card>
 
       {/* Current Meal Plan */}
-      <div>
-        <h2 className="text-2xl font-bold text-white mb-4">Current Meal Plan</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
-          {days.map((day) => (
-            <Card key={day} className="bg-slate-800/50 border-slate-700">
-              <CardContent className="p-4">
-                <h3 className="text-blue-400 font-semibold mb-3">{day}</h3>
-                <div className="space-y-3">
-                  <div className="bg-slate-700/50 rounded-lg p-3">
-                    <div className="text-xs text-slate-400 mb-1">Breakfast</div>
-                    <div className="text-white text-sm font-medium">{mealData[day as keyof typeof mealData]?.breakfast}</div>
-                    <div className="text-xs text-slate-400">320 kcal</div>
+      {Object.keys(mealPlan).length > 0 && (
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-4">Your Weekly Meal Plan</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+            {days.map((day) => (
+              <Card key={day} className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-4">
+                  <h3 className="text-blue-400 font-semibold mb-3">{day}</h3>
+                  <div className="space-y-3">
+                    <div className="bg-slate-700/50 rounded-lg p-3">
+                      <div className="text-xs text-slate-400 mb-1">Breakfast</div>
+                      <div className="text-white text-sm font-medium">{mealPlan[day]?.breakfast || 'Not planned'}</div>
+                      <div className="text-xs text-slate-400">{Math.round((mealPlan[day]?.calories || 2000) * 0.25)} kcal</div>
+                    </div>
+                    <div className="bg-slate-700/50 rounded-lg p-3">
+                      <div className="text-xs text-slate-400 mb-1">Lunch</div>
+                      <div className="text-white text-sm font-medium">{mealPlan[day]?.lunch || 'Not planned'}</div>
+                      <div className="text-xs text-slate-400">{Math.round((mealPlan[day]?.calories || 2000) * 0.35)} kcal</div>
+                    </div>
+                    <div className="bg-slate-700/50 rounded-lg p-3">
+                      <div className="text-xs text-slate-400 mb-1">Dinner</div>
+                      <div className="text-white text-sm font-medium">{mealPlan[day]?.dinner || 'Not planned'}</div>
+                      <div className="text-xs text-slate-400">{Math.round((mealPlan[day]?.calories || 2000) * 0.4)} kcal</div>
+                    </div>
                   </div>
-                  <div className="bg-slate-700/50 rounded-lg p-3">
-                    <div className="text-xs text-slate-400 mb-1">Lunch</div>
-                    <div className="text-white text-sm font-medium">{mealData[day as keyof typeof mealData]?.lunch}</div>
-                    <div className="text-xs text-slate-400">450 kcal</div>
-                  </div>
-                  <div className="bg-slate-700/50 rounded-lg p-3">
-                    <div className="text-xs text-slate-400 mb-1">Dinner</div>
-                    <div className="text-white text-sm font-medium">{mealData[day as keyof typeof mealData]?.dinner}</div>
-                    <div className="text-xs text-slate-400">580 kcal</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
