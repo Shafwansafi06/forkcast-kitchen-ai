@@ -26,18 +26,25 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
   };
 
   return (
-    <div className="w-48 bg-slate-900/50 border-r border-slate-800 p-4 min-h-screen flex flex-col">
-      <div className="flex items-center gap-2 mb-8">
-        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-          <span className="text-white font-bold text-sm">F</span>
-        </div>
-        <span className="text-white font-semibold text-lg">ForkCast</span>
+    <div className="w-48 bg-slate-900/90 border-r border-slate-700 p-4 min-h-screen flex flex-col backdrop-blur-sm">
+      <div className="flex items-center gap-3 mb-8">
+        <img 
+          src="/lovable-uploads/dd7827cf-89f3-4055-834d-3bcaf26d741f.png" 
+          alt="ForkCast Logo" 
+          className="w-8 h-8 opacity-90"
+        />
+        <span className="text-white font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          ForkCast
+        </span>
       </div>
       
       {profile && (
-        <div className="mb-6">
-          <p className="text-slate-300 text-sm">Welcome back,</p>
+        <div className="mb-6 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+          <p className="text-slate-400 text-xs">Welcome back,</p>
           <p className="text-white font-medium">{profile.first_name || 'User'}</p>
+          {profile.subscription_tier === 'pro' && (
+            <p className="text-yellow-400 text-xs font-medium mt-1">Pro Member</p>
+          )}
         </div>
       )}
       
@@ -47,8 +54,8 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
             key={item.id}
             variant="ghost"
             className={cn(
-              "w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800",
-              activeTab === item.id && "bg-blue-600 text-white hover:bg-blue-700"
+              "w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all duration-200",
+              activeTab === item.id && "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white border-l-2 border-blue-500"
             )}
             onClick={() => onTabChange(item.id)}
           >
@@ -59,12 +66,12 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
       </nav>
       
       <div className="space-y-2">
-        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-          ↑ Upgrade to Pro
+        <Button className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]">
+          ⭐ Pro Features Unlocked
         </Button>
         <Button
           variant="ghost"
-          className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800"
+          className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all duration-200"
           onClick={handleSignOut}
         >
           <LogOut className="w-4 h-4 mr-3" />
