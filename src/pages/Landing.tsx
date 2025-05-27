@@ -35,7 +35,7 @@ const Landing = () => {
         <div className="flex justify-between items-center p-6 max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
             <img 
-              src="/lovable-uploads/dd7827cf-89f3-4055-834d-3bcaf26d741f.png" 
+              src="/lovable-uploads/7e6d5a14-4cec-4e9c-8eb9-1baed98bed9a.png" 
               alt="ForkCast Logo" 
               className="w-10 h-10 animate-pulse"
             />
@@ -48,7 +48,7 @@ const Landing = () => {
                 setAuthMode('signin');
                 setShowAuth(true);
               }}
-              className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:scale-105 transition-all duration-200"
+              className="border-slate-600 bg-slate-800/50 text-slate-300 hover:bg-slate-700/80 hover:text-white hover:scale-105 transition-all duration-200 backdrop-blur-sm"
             >
               Log In Instead
             </Button>
@@ -71,7 +71,7 @@ const Landing = () => {
           {/* Logo with bounce animation */}
           <div className="animate-fade-in">
             <img 
-              src="/lovable-uploads/dd7827cf-89f3-4055-834d-3bcaf26d741f.png" 
+              src="/lovable-uploads/7e6d5a14-4cec-4e9c-8eb9-1baed98bed9a.png" 
               alt="ForkCast Logo" 
               className="w-32 h-32 mx-auto mb-8 animate-bounce"
             />
@@ -125,7 +125,7 @@ const Landing = () => {
                 setAuthMode('signin');
                 setShowAuth(true);
               }}
-              className="border-slate-600 text-slate-300 hover:bg-slate-800 text-lg px-8 py-4 hover:scale-105 transition-all duration-200"
+              className="border-slate-600 bg-slate-800/50 text-slate-300 hover:bg-slate-700/80 hover:text-white text-lg px-8 py-4 hover:scale-105 transition-all duration-200 backdrop-blur-sm"
             >
               Log In Instead
             </Button>
