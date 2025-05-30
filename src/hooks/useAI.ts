@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { getGeminiMealSuggestions } from '@/utils/gemini';
 
 interface MealSuggestionRequest {
   prompt: string;
@@ -21,21 +20,15 @@ export const useAI = () => {
   }: MealSuggestionRequest) => {
     setIsLoading(true);
     setError(null);
-
     try {
-      const { data, error } = await supabase.functions.invoke('generate-meal-suggestions', {
-        body: {
-          prompt,
-          preferences,
-          budget,
-          dietaryRestrictions
-        }
-      });
-
-      if (error) throw error;
-
+      // Compose the prompt with any extra info
+      let fullPrompt = prompt;
+      if (preferences) fullPrompt += ` Preferences: ${preferences}.`;
+      if (budget) fullPrompt += ` Budget: ${budget}.`;
+      if (dietaryRestrictions) fullPrompt += ` Dietary restrictions: ${dietaryRestrictions}.`;
+      const suggestions = await getGeminiMealSuggestions(fullPrompt);
       setIsLoading(false);
-      return data.mealSuggestions;
+      return suggestions.join('\n');
     } catch (err) {
       console.error('Error generating meal suggestions:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import { ChefHat, Sparkles, Clock, DollarSign, Users, Check } from 'lucide-react';
+import React from 'react';
+import AuthForm from '@/components/auth/AuthForm';
 
 const Landing = () => {
   const { signIn, signUp } = useAuth();
@@ -18,7 +19,7 @@ const Landing = () => {
     dairyFree: false,
     nutFree: false
   });
-  const [authMode, setAuthMode] = useState('signup');
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -65,8 +66,11 @@ const Landing = () => {
           </div>
           <Button 
             variant="outline" 
-            className="border-white/20 text-white hover:bg-white/10"
-            onClick={() => setStep('auth')}
+            className="border-white/20 text-black hover:bg-white/10"
+            onClick={() => {
+              setStep('auth');
+              setAuthMode('signin');
+            }}
           >
             Log In Instead
           </Button>
@@ -102,7 +106,7 @@ const Landing = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-white/20 text-white hover:bg-white/10 px-8 py-4 text-lg"
+              className="border-blue-500 text-blue-500 hover:bg-blue-600 hover:text-white focus:bg-blue-700 focus:text-white px-8 py-4 text-lg transition-colors duration-200"
             >
               Watch Demo
             </Button>
@@ -165,20 +169,23 @@ const Landing = () => {
 
   const PreferencesStep = () => (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
-      <Card className="w-full max-w-2xl bg-slate-800/50 border-slate-700">
+      <Card className="w-full max-w-2xl bg-slate-800/70 border-slate-600">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl text-white">Tell us about your food preferences</CardTitle>
-          <p className="text-slate-400">We'll personalize your meal plans based on your dietary needs</p>
+          <p className="text-slate-200">We'll personalize your meal plans based on your dietary needs</p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(preferences).map(([key, checked]) => (
-              <div key={key} className="flex items-center space-x-3 p-3 rounded-lg bg-slate-700/30">
+              <div key={key} className={`flex items-center space-x-3 p-4 rounded-lg border ${checked ? 'bg-blue-700/50 border-blue-600' : 'bg-slate-700/50 border-slate-600'} hover:bg-slate-600/70 transition-colors duration-200 cursor-pointer`}
+                onClick={() => handlePreferenceChange(key, !checked)}
+              >
                 <Checkbox 
                   checked={checked}
                   onCheckedChange={(checked) => handlePreferenceChange(key, checked)}
+                  className={`w-5 h-5 ${checked ? 'border-blue-300 text-blue-300' : 'border-slate-400'}`}
                 />
-                <span className="text-slate-300 font-medium">
+                <span className="text-white font-semibold">
                   {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                 </span>
               </div>
@@ -188,13 +195,13 @@ const Landing = () => {
           <div className="flex gap-4">
             <Button 
               variant="outline" 
-              className="flex-1 border-slate-600 text-slate-300"
+              className="flex-1 border-slate-400 text-slate-100 hover:bg-slate-600 hover:text-white"
               onClick={() => setStep('welcome')}
             >
               Back
             </Button>
             <Button 
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3"
               onClick={() => setStep('subscription')}
             >
               Continue
@@ -210,43 +217,43 @@ const Landing = () => {
       <div className="w-full max-w-4xl">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white mb-4">Choose Your Plan</h2>
-          <p className="text-slate-400 text-lg">Start with a 14-day free trial, then continue for just $9.99/month</p>
+          <p className="text-slate-200 text-lg">Start with a 14-day free trial, then continue for just $9.99/month</p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-8">
           {/* Free Trial */}
-          <Card className="bg-slate-800/50 border-slate-700 relative">
+          <Card className="bg-slate-800/80 border-slate-500 relative">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <span className="bg-green-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+              <span className="bg-green-600 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg">
                 Start Here
               </span>
             </div>
             <CardHeader className="text-center pt-8">
               <CardTitle className="text-2xl text-white">Free Trial</CardTitle>
               <div className="text-4xl font-bold text-white mt-4">$0</div>
-              <p className="text-slate-400">14 days free</p>
+              <p className="text-slate-200">14 days free</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-400" />
-                  <span className="text-slate-300">Unlimited AI meal plans</span>
+                  <span className="text-slate-100">Unlimited AI meal plans</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-400" />
-                  <span className="text-slate-300">Smart grocery lists</span>
+                  <span className="text-slate-100">Smart grocery lists</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-400" />
-                  <span className="text-slate-300">Recipe recommendations</span>
+                  <span className="text-slate-100">Recipe recommendations</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-400" />
-                  <span className="text-slate-300">Kroger integration</span>
+                  <span className="text-slate-100">Kroger integration</span>
                 </div>
               </div>
               <Button 
-                className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
+                className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-3"
                 onClick={startFreeTrial}
               >
                 Start 14-Day Free Trial
@@ -255,34 +262,34 @@ const Landing = () => {
           </Card>
 
           {/* Pro Plan */}
-          <Card className="bg-gradient-to-br from-blue-600/10 to-purple-600/10 border-blue-500/20">
+          <Card className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 border-blue-700 shadow-xl">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl text-white">Pro Plan</CardTitle>
               <div className="text-4xl font-bold text-white mt-4">$9.99</div>
-              <p className="text-slate-400">per month after trial</p>
+              <p className="text-white">per month after trial</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400" />
-                  <span className="text-slate-300">Everything in Free Trial</span>
+                  <Check className="w-4 h-4 text-blue-300" />
+                  <span className="text-white">Everything in Free Trial</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400" />
-                  <span className="text-slate-300">Advanced nutrition tracking</span>
+                  <Check className="w-4 h-4 text-blue-300" />
+                  <span className="text-white">Advanced nutrition tracking</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400" />
-                  <span className="text-slate-300">Family meal planning</span>
+                  <Check className="w-4 h-4 text-blue-300" />
+                  <span className="text-white">Family meal planning</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400" />
-                  <span className="text-slate-300">Priority support</span>
+                  <Check className="w-4 h-4 text-blue-300" />
+                  <span className="text-white">Priority support</span>
                 </div>
               </div>
               <Button 
                 variant="outline"
-                className="w-full border-blue-500/20 text-blue-400 hover:bg-blue-600/10"
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 border-0 shadow-md"
                 onClick={startFreeTrial}
               >
                 Try Free, Then $9.99/month
@@ -293,8 +300,8 @@ const Landing = () => {
         
         <div className="text-center mt-8">
           <Button 
-            variant="ghost" 
-            className="text-slate-400 hover:text-white"
+            variant="link" 
+            className="text-slate-300 hover:text-slate-100"
             onClick={() => setStep('preferences')}
           >
             Back to Preferences
@@ -304,69 +311,24 @@ const Landing = () => {
     </div>
   );
 
-  const AuthStep = () => (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
-      <Card className="w-full max-w-md bg-slate-800/50 border-slate-700">
-        <CardHeader className="text-center">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-lg">F</span>
-          </div>
-          <CardTitle className="text-2xl text-white">
-            {authMode === 'signup' ? 'Create Your Account' : 'Welcome Back'}
-          </CardTitle>
-          <p className="text-slate-400">
-            {authMode === 'signup' ? 'Start your 14-day free trial' : 'Sign in to your account'}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
-            <Input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-slate-700 border-slate-600 text-white"
-              required
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="bg-slate-700 border-slate-600 text-white"
-              required
-            />
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-              disabled={loading}
-            >
-              {loading ? 'Please wait...' : (authMode === 'signup' ? 'Start Free Trial' : 'Sign In')}
-            </Button>
-          </form>
-          
-          <div className="text-center mt-4">
-            <button
-              type="button"
-              className="text-slate-400 hover:text-white"
-              onClick={() => setAuthMode(authMode === 'signup' ? 'signin' : 'signup')}
-            >
-              {authMode === 'signup' ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-            </button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+  return (
+    <>
+      <div style={{ display: step === 'welcome' ? 'block' : 'none' }}>
+        <WelcomeStep />
+      </div>
+      <div style={{ display: step === 'preferences' ? 'block' : 'none' }}>
+        <PreferencesStep />
+      </div>
+      <div style={{ display: step === 'subscription' ? 'block' : 'none' }}>
+        <SubscriptionStep />
+      </div>
+      <div style={{ display: step === 'auth' ? 'block' : 'none' }}>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+          <AuthForm mode={authMode} onToggleMode={() => setAuthMode(prev => prev === 'signin' ? 'signup' : 'signin')} />
+        </div>
+      </div>
+    </>
   );
-
-  const steps = {
-    welcome: <WelcomeStep />,
-    preferences: <PreferencesStep />,
-    subscription: <SubscriptionStep />,
-    auth: <AuthStep />
-  };
-
-  return steps[step];
 };
 
 export default Landing;

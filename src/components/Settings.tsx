@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -7,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useProfile } from "@/hooks/useProfile";
 import { useState } from "react";
 import { toast } from "sonner";
+import { createWisePayment } from "@/utils/wise";
 
 const Settings = () => {
   const { profile, updateProfile } = useProfile();

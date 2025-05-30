@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Dashboard from "@/components/Dashboard";
 import MealPlan from "@/components/MealPlan";
 import GroceryList from "@/components/GroceryList";
 import Settings from "@/components/Settings";
+import { Helmet } from "react-helmet";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -27,7 +27,28 @@ const Index = () => {
       case 'grocery-list':
         return <GroceryList />;
       case 'settings':
-        return <Settings />;
+        return <>
+          <Helmet>
+            <script
+              src="https://www.paypal.com/sdk/js?client-id=BAA32PnQN0YhO6eJBbxQX0qbtKuE8zlaex-fNyT2SD8HEfseWoSHPdJ8g-LOGk30xfGtG4j1011PLiUh84&components=hosted-buttons&disable-funding=venmo&currency=USD"
+              crossOrigin="anonymous"
+              async
+            ></script>
+            <script type="text/javascript">
+              {`
+                document.addEventListener("DOMContentLoaded", function() {
+                  if (window.paypal && window.paypal.HostedButtons) {
+                    window.paypal.HostedButtons({ hostedButtonId: "NE3TAXDBJAZKL" }).render("#paypal-container-NE3TAXDBJAZKL");
+                  }
+                });
+              `}
+            </script>
+          </Helmet>
+          <Settings />
+          <div className="mt-8 flex justify-center">
+            <div id="paypal-container-NE3TAXDBJAZKL"></div>
+          </div>
+        </>;
       default:
         return <Dashboard />;
     }

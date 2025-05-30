@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { Calendar, Settings, ShoppingCart, BarChart3, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,9 +28,9 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
     <div className="w-48 bg-slate-900/90 border-r border-slate-700 p-4 min-h-screen flex flex-col backdrop-blur-sm">
       <div className="flex items-center gap-3 mb-8">
         <img 
-          src="/lovable-uploads/dd7827cf-89f3-4055-834d-3bcaf26d741f.png" 
+          src="/logo.png" 
           alt="ForkCast Logo" 
-          className="w-8 h-8 opacity-90"
+          className="h-10 w-auto"
         />
         <span className="text-white font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           ForkCast

@@ -1,11 +1,11 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAI } from '@/hooks/useAI';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ReactMarkdown from 'react-markdown';
 
 const AIHelper = () => {
-  const [prompt, setPrompt] = useState('');
+  const [prompt, setPrompt] = useState('Create a meal plan for a non-vegetarian, diabetic person with a peanut allergy. Format your reply in clean Markdown with clear headings, bullet points, and sections, suitable for pasting into Notion.');
   const [response, setResponse] = useState('');
   const { generateMealSuggestions, isLoading, error } = useAI();
 
@@ -34,7 +34,7 @@ const AIHelper = () => {
               id="prompt"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g., I need healthy dinner ideas for this week under $50"
+              placeholder="e.g., I need healthy dinner ideas for this week under $50. Format in Markdown."
               className="w-full p-3 border border-gray-300 rounded-md resize-none h-24"
               rows={3}
             />
@@ -57,7 +57,9 @@ const AIHelper = () => {
         {response && (
           <div className="bg-gray-50 border border-gray-200 p-4 rounded-md">
             <h3 className="font-medium mb-2">AI Suggestions:</h3>
-            <div className="whitespace-pre-wrap text-sm">{response}</div>
+            <div className="prose prose-slate max-w-none">
+              <ReactMarkdown>{response}</ReactMarkdown>
+            </div>
           </div>
         )}
       </CardContent>

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,6 +8,7 @@ import { useState, useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { Loader2, ChefHat } from "lucide-react";
+import { getGeminiMealSuggestions } from '@/utils/gemini';
 
 const MealPlan = () => {
   const { profile } = useProfile();
@@ -53,26 +53,28 @@ const MealPlan = () => {
       if (preferences.keto) dietaryRestrictions.push('keto');
       if (allergies.trim()) dietaryRestrictions.push(`allergic to: ${allergies}`);
 
-      // Generate meal plan for each day
-      const newMealPlan = {};
-      
-      for (const day of days) {
-        const spoonacularUrl = `https://api.spoonacular.com/mealplanner/generate?timeFrame=day&targetCalories=${calorieTarget[0]}&diet=${dietaryRestrictions.join(',')}&apiKey=4b58741481ef44c8ae554ad9193158e8`;
-        
-        const response = await fetch(spoonacularUrl);
-        const dayPlan = await response.json();
-        
-        if (dayPlan.meals) {
-          newMealPlan[day] = {
-            breakfast: dayPlan.meals.find(m => m.id)?.title || 'Healthy Breakfast',
-            lunch: dayPlan.meals.find(m => m.id)?.title || 'Nutritious Lunch', 
-            dinner: dayPlan.meals.find(m => m.id)?.title || 'Delicious Dinner',
-            calories: dayPlan.nutrients?.calories || calorieTarget[0],
-            protein: dayPlan.nutrients?.protein || proteinTarget[0]
-          };
-        }
-      }
+      // Compose stricter Gemini prompt
+      const prompt = `Generate a 7-day meal plan. For each day, list breakfast, lunch, and dinner, each with a unique meal name and calorie count. Use the following preferences: ${dietaryRestrictions.join(', ') || 'none'}. Calorie target: ${calorieTarget[0]} kcal/day. Protein target: ${proteinTarget[0]}g/day. Meal frequency: ${mealFrequency[0]} per day. Weekly budget: $${weeklyBudget[0]}. Cooking time limit: ${cookingTimeLimit} minutes.\n\nReply with only valid JSON, no explanation, no markdown, no code block, no comments. Do not include any text before or after the JSON. If you cannot generate a meal, use 'Not planned' and 0 for calories.\n\nFormat:\n{\n  \"Monday\": {\n    \"Breakfast\": {\"meal\": \"...\", \"calories\": ...},\n    \"Lunch\": {\"meal\": \"...\", \"calories\": ...},\n    \"Dinner\": {\"meal\": \"...\", \"calories\": ...}\n  },\n  ...\n}`;
 
+      const suggestions = await getGeminiMealSuggestions(prompt);
+      // Join suggestions in case Gemini splits JSON over lines
+      const rawString = suggestions.join(' ');
+      // Extract the first {...} JSON block
+      const match = rawString.match(/\{[\s\S]*\}/);
+      let newMealPlan = {};
+      if (match) {
+        try {
+          newMealPlan = JSON.parse(match[0]);
+        } catch (err) {
+          toast.error('AI returned invalid JSON. Please try again.');
+          setIsGenerating(false);
+          return;
+        }
+      } else {
+        toast.error('AI did not return a valid meal plan. Please try again.');
+        setIsGenerating(false);
+        return;
+      }
       setMealPlan(newMealPlan);
       localStorage.setItem('forkcast_meal_plan', JSON.stringify(newMealPlan));
       toast.success('Meal plan generated successfully! 🍽️');
@@ -232,18 +234,18 @@ const MealPlan = () => {
                   <div className="space-y-3">
                     <div className="bg-slate-700/50 rounded-lg p-3">
                       <div className="text-xs text-slate-400 mb-1">Breakfast</div>
-                      <div className="text-white text-sm font-medium">{mealPlan[day]?.breakfast || 'Not planned'}</div>
-                      <div className="text-xs text-slate-400">{Math.round((mealPlan[day]?.calories || 2000) * 0.25)} kcal</div>
+                      <div className="text-white text-sm font-medium">{mealPlan[day]?.Breakfast?.meal || mealPlan[day]?.breakfast || 'Not planned'}</div>
+                      <div className="text-xs text-slate-400">{mealPlan[day]?.Breakfast?.calories || mealPlan[day]?.breakfast_calories || Math.round((calorieTarget[0]) * 0.25)} kcal</div>
                     </div>
                     <div className="bg-slate-700/50 rounded-lg p-3">
                       <div className="text-xs text-slate-400 mb-1">Lunch</div>
-                      <div className="text-white text-sm font-medium">{mealPlan[day]?.lunch || 'Not planned'}</div>
-                      <div className="text-xs text-slate-400">{Math.round((mealPlan[day]?.calories || 2000) * 0.35)} kcal</div>
+                      <div className="text-white text-sm font-medium">{mealPlan[day]?.Lunch?.meal || mealPlan[day]?.lunch || 'Not planned'}</div>
+                      <div className="text-xs text-slate-400">{mealPlan[day]?.Lunch?.calories || mealPlan[day]?.lunch_calories || Math.round((calorieTarget[0]) * 0.35)} kcal</div>
                     </div>
                     <div className="bg-slate-700/50 rounded-lg p-3">
                       <div className="text-xs text-slate-400 mb-1">Dinner</div>
-                      <div className="text-white text-sm font-medium">{mealPlan[day]?.dinner || 'Not planned'}</div>
-                      <div className="text-xs text-slate-400">{Math.round((mealPlan[day]?.calories || 2000) * 0.4)} kcal</div>
+                      <div className="text-white text-sm font-medium">{mealPlan[day]?.Dinner?.meal || mealPlan[day]?.dinner || 'Not planned'}</div>
+                      <div className="text-xs text-slate-400">{mealPlan[day]?.Dinner?.calories || mealPlan[day]?.dinner_calories || Math.round((calorieTarget[0]) * 0.4)} kcal</div>
                     </div>
                   </div>
                 </CardContent>

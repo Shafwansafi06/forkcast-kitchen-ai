@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,11 +27,25 @@ export const useProfile = () => {
 
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching profile:', error);
+        }
+        if (!data) {
+          // Profile does not exist, create it
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert({ id: user.id, email: user.email })
+            .select()
+            .single();
+          if (insertError) {
+            console.error('Error creating profile:', insertError);
+            setProfile(null);
+          } else {
+            setProfile(newProfile);
+          }
         } else {
           setProfile(data);
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error fetching/creating profile:', error);
       } finally {
         setLoading(false);
       }

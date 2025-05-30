@@ -1,10 +1,10 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AIHelper from './AIHelper';
 import { useProfile } from "@/hooks/useProfile";
 import { useState, useEffect } from "react";
-import { Calendar, ChefHat, ShoppingCart, TrendingUp, Sparkles, Clock } from "lucide-react";
+import { Calendar, ChefHat, ShoppingCart, TrendingUp, Sparkles, Clock, List, DollarSign } from "lucide-react";
+import { getGeminiMealSuggestions } from '@/utils/gemini';
 
 const Dashboard = () => {
   const { profile, updateProfile } = useProfile();
@@ -15,6 +15,9 @@ const Dashboard = () => {
     budgetSaved: 45.23,
     recipesTried: 8
   });
+  const [geminiSuggestions, setGeminiSuggestions] = useState<string[]>([]);
+  const [geminiLoading, setGeminiLoading] = useState(false);
+  const [geminiError, setGeminiError] = useState<string | null>(null);
 
   // Enable pro features for testing
   useEffect(() => {
@@ -38,8 +41,21 @@ const Dashboard = () => {
     fetchRecentMeals();
   }, []);
 
+  const fetchGeminiSuggestions = async () => {
+    setGeminiLoading(true);
+    setGeminiError(null);
+    try {
+      const suggestions = await getGeminiMealSuggestions('Suggest 5 creative, healthy dinner ideas for this week. List only the meal names.');
+      setGeminiSuggestions(suggestions);
+    } catch (err: any) {
+      setGeminiError('Failed to fetch AI suggestions.');
+    } finally {
+      setGeminiLoading(false);
+    }
+  };
+
   const handleTabChange = (tab: string) => {
-    const url = new URL(window.location);
+    const url = new URL(window.location.href);
     url.searchParams.set('tab', tab);
     window.history.pushState({}, '', url);
     window.location.reload();
@@ -51,9 +67,9 @@ const Dashboard = () => {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <img 
-              src="/lovable-uploads/dd7827cf-89f3-4055-834d-3bcaf26d741f.png" 
+              src="/logo.png" 
               alt="ForkCast Logo" 
-              className="w-8 h-8 opacity-90"
+              className="h-10 w-auto"
             />
             <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Welcome back, {profile?.first_name || 'Chef'}! 👨‍🍳
@@ -75,65 +91,48 @@ const Dashboard = () => {
       </div>
       
       {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500/30 hover:from-blue-500/30 hover:to-blue-600/30 transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">
-              Meals Planned
-            </CardTitle>
-            <Calendar className="h-5 w-5 text-blue-400" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+        <Card className="bg-blue-600 text-white rounded-xl shadow-lg p-6">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Meals Planned</CardTitle>
+            <Calendar className="h-5 w-5 text-white/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{weeklyStats.mealsPlanned}</div>
-            <p className="text-xs text-blue-400 flex items-center gap-1 mt-1">
+            <div className="text-3xl font-bold">{weeklyStats.mealsPlanned}</div>
+            <p className="text-xs flex items-center gap-1 mt-1 text-white/80">
               <TrendingUp className="w-3 h-3" />
               +2 from last week
             </p>
           </CardContent>
         </Card>
-        
-        <Card className="bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30 hover:from-green-500/30 hover:to-green-600/30 transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">
-              Grocery Lists
-            </CardTitle>
-            <ShoppingCart className="h-5 w-5 text-green-400" />
+        <Card className="bg-green-600 text-white rounded-xl shadow-lg p-6">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Grocery Lists</CardTitle>
+            <List className="h-5 w-5 text-white/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{weeklyStats.groceryLists}</div>
-            <p className="text-xs text-green-400">
-              Active lists
-            </p>
+            <div className="text-3xl font-bold">{weeklyStats.groceryLists}</div>
+            <p className="text-xs mt-1 text-white/80">Active lists</p>
           </CardContent>
         </Card>
-        
-        <Card className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500/30 hover:from-purple-500/30 hover:to-purple-600/30 transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">
-              Budget Saved
-            </CardTitle>
-            <TrendingUp className="h-5 w-5 text-purple-400" />
+        <Card className="bg-purple-600 text-white rounded-xl shadow-lg p-6">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Budget Saved</CardTitle>
+            <DollarSign className="h-5 w-5 text-white/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">${weeklyStats.budgetSaved}</div>
-            <p className="text-xs text-purple-400">
-              This month
-            </p>
+            <div className="text-3xl font-bold">${weeklyStats.budgetSaved}</div>
+            <p className="text-xs mt-1 text-white/80">This month</p>
           </CardContent>
         </Card>
-        
-        <Card className="bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-orange-500/30 hover:from-orange-500/30 hover:to-orange-600/30 transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">
-              Recipes Tried
-            </CardTitle>
-            <ChefHat className="h-5 w-5 text-orange-400" />
+        <Card className="bg-orange-500 text-white rounded-xl shadow-lg p-6">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Recipes Tried</CardTitle>
+            <ChefHat className="h-5 w-5 text-white/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{weeklyStats.recipesTried}</div>
-            <p className="text-xs text-orange-400">
-              New this week
-            </p>
+            <div className="text-3xl font-bold">{weeklyStats.recipesTried}</div>
+            <p className="text-xs mt-1 text-white/80">New this week</p>
           </CardContent>
         </Card>
       </div>
