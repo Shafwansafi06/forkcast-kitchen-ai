@@ -1,12 +1,17 @@
-import { Button } from "@/components/ui/button";
+"use client"
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useProfile } from "@/hooks/useProfile";
-import { useState } from "react";
+import { useProfile, hasProAccess } from "@/hooks/useProfile";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { createWisePayment } from "@/utils/wise";
+
+declare global {
+  interface Window {
+    kofiwidget2?: any;
+  }
+}
 
 const Settings = () => {
   const { profile, updateProfile } = useProfile();
@@ -14,13 +19,11 @@ const Settings = () => {
 
   const handleDietaryChange = async (diet: string, enabled: boolean) => {
     if (!profile) return;
-    
     setIsUpdating(true);
     const currentPrefs = profile.dietary_preferences || [];
     const newPrefs = enabled
       ? [...currentPrefs, diet]
       : currentPrefs.filter((pref) => pref !== diet);
-
     const { error } = await updateProfile({ dietary_preferences: newPrefs });
     if (error) {
       toast.error('Failed to update dietary preferences');
@@ -52,6 +55,28 @@ const Settings = () => {
     setIsUpdating(false);
   };
 
+  useEffect(() => {
+    if (!hasProAccess(profile)) {
+      // Inject Ko-fi widget script
+      if (!document.getElementById('kofi-script')) {
+        const script = document.createElement('script');
+        script.id = 'kofi-script';
+        script.type = 'text/javascript';
+        script.src = 'https://storage.ko-fi.com/cdn/widget/Widget_2.js';
+        script.onload = () => {
+          if (window.kofiwidget2) {
+            window.kofiwidget2.init('Subscribe to Pro using Ko-fi', '#72a4f2', 'G2G81FXIN4');
+            window.kofiwidget2.draw();
+          }
+        };
+        document.body.appendChild(script);
+      } else if (window.kofiwidget2) {
+        window.kofiwidget2.init('Subscribe to Pro using Ko-fi', '#72a4f2', 'G2G81FXIN4');
+        window.kofiwidget2.draw();
+      }
+    }
+  }, [profile]);
+
   if (!profile) {
     return (
       <div className="p-6">
@@ -71,7 +96,6 @@ const Settings = () => {
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-3xl font-bold text-white">Settings</h1>
-
       {/* Account Settings */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardContent className="p-6">
@@ -135,7 +159,6 @@ const Settings = () => {
           </div>
         </CardContent>
       </Card>
-
       {/* Dietary Preferences */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardContent className="p-6">
@@ -154,7 +177,6 @@ const Settings = () => {
           </div>
         </CardContent>
       </Card>
-
       {/* Subscription */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardContent className="p-6">
@@ -167,12 +189,23 @@ const Settings = () => {
                   {profile.subscription_tier === 'pro' ? 'Pro Plan - Unlimited meal plans' : 'Free Plan - 1 meal plan per week'}
                 </div>
               </div>
-              {profile.subscription_tier !== 'pro' && (
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Upgrade to Pro
-                </Button>
+              {hasProAccess(profile) ? null : (
+                <div className="text-center">
+                  <p className="text-slate-300 mb-3">Upgrade to Pro for unlimited features!</p>
+                  <div id="kofi-widget-container" className="flex justify-center"></div>
+                </div>
               )}
             </div>
+            {profile.subscription_tier === 'pro' && (
+              <div className="bg-green-600/20 border border-green-500/30 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400 font-medium">✨ Pro Member</span>
+                </div>
+                <p className="text-slate-300 text-sm mt-1">
+                  Thank you for supporting ForkCast! You have access to all premium features.
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

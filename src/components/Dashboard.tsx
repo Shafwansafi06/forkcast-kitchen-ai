@@ -19,13 +19,6 @@ const Dashboard = () => {
   const [geminiLoading, setGeminiLoading] = useState(false);
   const [geminiError, setGeminiError] = useState<string | null>(null);
 
-  // Enable pro features for testing
-  useEffect(() => {
-    if (profile && profile.subscription_tier !== 'pro') {
-      updateProfile({ subscription_tier: 'pro' });
-    }
-  }, [profile, updateProfile]);
-
   // Fetch recent meals from Spoonacular API
   useEffect(() => {
     const fetchRecentMeals = async () => {

@@ -30,9 +30,18 @@ export const useProfile = () => {
         }
         if (!data) {
           // Profile does not exist, create it
+          const now = new Date();
+          const trialStart = now.toISOString();
+          const trialEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
           const { data: newProfile, error: insertError } = await supabase
             .from('profiles')
-            .insert({ id: user.id, email: user.email })
+            .insert({ 
+              id: user.id, 
+              email: user.email,
+              trial_start: trialStart,
+              trial_end: trialEnd,
+              subscription_tier: 'trial'
+            })
             .select()
             .single();
           if (insertError) {
@@ -80,3 +89,12 @@ export const useProfile = () => {
     updateProfile,
   };
 };
+
+export function hasProAccess(profile: any): boolean {
+  if (!profile) return false;
+  if (profile.subscription_tier === "pro") return true;
+  if (profile.subscription_tier === "trial" && profile.trial_end) {
+    return new Date(profile.trial_end) > new Date();
+  }
+  return false;
+}

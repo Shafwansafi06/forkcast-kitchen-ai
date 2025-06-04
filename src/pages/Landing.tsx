@@ -113,7 +113,7 @@ const Landing = () => {
           </div>
           
           <p className="text-slate-400 text-sm mt-4">
-            ✨ 14-day free trial • No credit card required • Cancel anytime
+            ✨ 7-day free trial • No credit card required • Cancel anytime
           </p>
         </div>
       </section>
@@ -217,7 +217,7 @@ const Landing = () => {
       <div className="w-full max-w-4xl">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white mb-4">Choose Your Plan</h2>
-          <p className="text-slate-200 text-lg">Start with a 14-day free trial, then continue for just $9.99/month</p>
+          <p className="text-slate-200 text-lg">Start with a 7-day free trial, then continue for just $4.99/month</p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-8">
@@ -231,7 +231,7 @@ const Landing = () => {
             <CardHeader className="text-center pt-8">
               <CardTitle className="text-2xl text-white">Free Trial</CardTitle>
               <div className="text-4xl font-bold text-white mt-4">$0</div>
-              <p className="text-slate-200">14 days free</p>
+              <p className="text-slate-200">7 days free</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
@@ -243,20 +243,12 @@ const Landing = () => {
                   <Check className="w-4 h-4 text-green-400" />
                   <span className="text-slate-100">Smart grocery lists</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-400" />
-                  <span className="text-slate-100">Recipe recommendations</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-400" />
-                  <span className="text-slate-100">Kroger integration</span>
-                </div>
               </div>
               <Button 
                 className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-3"
                 onClick={startFreeTrial}
               >
-                Start 14-Day Free Trial
+                Start 7-Day Free Trial
               </Button>
             </CardContent>
           </Card>
@@ -265,7 +257,7 @@ const Landing = () => {
           <Card className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 border-blue-700 shadow-xl">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl text-white">Pro Plan</CardTitle>
-              <div className="text-4xl font-bold text-white mt-4">$9.99</div>
+              <div className="text-4xl font-bold text-white mt-4">$4.99</div>
               <p className="text-white">per month after trial</p>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -292,7 +284,7 @@ const Landing = () => {
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 border-0 shadow-md"
                 onClick={startFreeTrial}
               >
-                Try Free, Then $9.99/month
+                Try Free, Then $4.99/month
               </Button>
             </CardContent>
           </Card>

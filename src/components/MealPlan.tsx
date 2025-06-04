@@ -5,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-import { useProfile } from "@/hooks/useProfile";
+import { useProfile, hasProAccess } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { Loader2, ChefHat } from "lucide-react";
 import { getGeminiMealSuggestions } from '@/utils/gemini';
@@ -38,7 +38,7 @@ const MealPlan = () => {
   }, []);
 
   const generateMealPlan = async () => {
-    if (!profile?.subscription_tier || profile.subscription_tier === 'free') {
+    if (!hasProAccess(profile)) {
       toast.error('Upgrade to Pro to generate unlimited meal plans!');
       return;
     }
