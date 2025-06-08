@@ -13,9 +13,61 @@ declare global {
   }
 }
 
+const cuisineOptions = [
+  "American",
+  "Indian",
+  "Italian",
+  "Chinese",
+  "Mexican",
+  "Thai",
+  "Japanese",
+  "French",
+  "Mediterranean",
+  "Other"
+];
+
+const dietaryOptions = [
+  { label: 'Vegetarian', value: 'vegetarian' },
+  { label: 'Vegan', value: 'vegan' },
+  { label: 'Gluten Free', value: 'gluten_free' },
+  { label: 'Keto', value: 'keto' },
+  { label: 'Dairy Free', value: 'dairy_free' }
+];
+
 const Settings = () => {
   const { profile, updateProfile } = useProfile();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [firstName, setFirstName] = useState(profile?.first_name || "");
+  const [lastName, setLastName] = useState(profile?.last_name || "");
+  const [age, setAge] = useState(profile?.age?.toString() || "");
+  const [cuisinePreferences, setCuisinePreferences] = useState<string[]>(profile?.cuisine_preferences || []);
+  const [foodLikes, setFoodLikes] = useState(profile?.food_likes || "");
+
+  useEffect(() => {
+    setFirstName(profile?.first_name || "");
+    setLastName(profile?.last_name || "");
+    setAge(profile?.age?.toString() || "");
+    setCuisinePreferences(profile?.cuisine_preferences || []);
+    setFoodLikes(profile?.food_likes || "");
+  }, [profile]);
+
+  const handleSaveProfile = async () => {
+    setIsUpdating(true);
+    const updates: any = {
+      first_name: firstName,
+      last_name: lastName,
+      age: age ? parseInt(age) : null,
+      cuisine_preferences: cuisinePreferences,
+      food_likes: foodLikes
+    };
+    const { error } = await updateProfile(updates);
+    if (error) {
+      toast.error('Failed to update profile');
+    } else {
+      toast.success('Profile updated');
+    }
+    setIsUpdating(false);
+  };
 
   const handleDietaryChange = async (diet: string, enabled: boolean) => {
     if (!profile) return;
@@ -55,6 +107,15 @@ const Settings = () => {
     setIsUpdating(false);
   };
 
+  // Cuisine multi-select logic
+  const toggleCuisine = (cuisine: string) => {
+    setCuisinePreferences((prev) =>
+      prev.includes(cuisine)
+        ? prev.filter((c) => c !== cuisine)
+        : [...prev, cuisine]
+    );
+  };
+
   useEffect(() => {
     if (!hasProAccess(profile)) {
       // Inject Ko-fi widget script
@@ -85,48 +146,122 @@ const Settings = () => {
     );
   }
 
-  const dietaryOptions = [
-    { label: 'Vegetarian', value: 'vegetarian' },
-    { label: 'Vegan', value: 'vegan' },
-    { label: 'Gluten Free', value: 'gluten_free' },
-    { label: 'Keto', value: 'keto' },
-    { label: 'Dairy Free', value: 'dairy_free' }
-  ];
-
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-white">Settings</h1>
+    <div className="p-6 space-y-6 max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold text-white mb-6">Settings</h1>
       {/* Account Settings */}
       <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Account Settings</h2>
-          <div className="space-y-4">
+        <CardContent className="p-6 space-y-6">
+          <h2 className="text-xl font-semibold text-white mb-4">Profile</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2">First Name</label>
+              <Input
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-slate-300"
+                disabled={isUpdating}
+              />
+            </div>
+            <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2">Last Name</label>
+              <Input
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-slate-300"
+                disabled={isUpdating}
+              />
+            </div>
             <div>
               <label className="block text-slate-300 text-sm font-medium mb-2">Email</label>
-              <div className="text-slate-400">{profile.email}</div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-slate-300 text-sm font-medium mb-2">First Name</label>
-                <Input
-                  value={profile.first_name || ''}
-                  className="bg-slate-700 border-slate-600 text-slate-300"
-                  disabled
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 text-sm font-medium mb-2">Last Name</label>
-                <Input
-                  value={profile.last_name || ''}
-                  className="bg-slate-700 border-slate-600 text-slate-300"
-                  disabled
-                />
-              </div>
+              <Input
+                value={profile.email || ''}
+                className="bg-slate-700 border-slate-600 text-slate-300"
+                disabled
+              />
             </div>
             <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2">Age</label>
+              <Input
+                type="number"
+                min={0}
+                value={age}
+                onChange={e => setAge(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-slate-300"
+                disabled={isUpdating}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end mt-4">
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow"
+              onClick={handleSaveProfile}
+              disabled={isUpdating}
+            >
+              {isUpdating ? 'Saving...' : 'Save Profile'}
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+      {/* Dietary Preferences */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardContent className="p-6 space-y-6">
+          <h2 className="text-xl font-semibold text-white mb-4">Dietary Preferences</h2>
+          <div className="space-y-4">
+            {dietaryOptions.map((diet) => (
+              <div key={diet.value} className="flex items-center justify-between">
+                <span className="text-slate-300">{diet.label}</span>
+                <Switch
+                  checked={profile.dietary_preferences?.includes(diet.value) || false}
+                  onCheckedChange={(checked) => handleDietaryChange(diet.value, checked)}
+                  disabled={isUpdating}
+                />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      {/* Cuisine Preferences */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardContent className="p-6 space-y-6">
+          <h2 className="text-xl font-semibold text-white mb-4">Cuisine Preferences</h2>
+          <div className="flex flex-wrap gap-2">
+            {cuisineOptions.map((cuisine) => (
+              <button
+                key={cuisine}
+                type="button"
+                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors duration-150 ${cuisinePreferences.includes(cuisine) ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-blue-700 hover:text-white'}`}
+                onClick={() => toggleCuisine(cuisine)}
+                disabled={isUpdating}
+              >
+                {cuisine}
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      {/* Food Likes */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardContent className="p-6 space-y-6">
+          <h2 className="text-xl font-semibold text-white mb-4">What do you like to eat?</h2>
+          <Input
+            value={foodLikes}
+            onChange={e => setFoodLikes(e.target.value)}
+            placeholder="e.g. spicy food, pasta, salads, etc."
+            className="bg-slate-700 border-slate-600 text-slate-300"
+            disabled={isUpdating}
+          />
+        </CardContent>
+      </Card>
+      {/* Budget & Location */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardContent className="p-6 space-y-6">
+          <h2 className="text-xl font-semibold text-white mb-4">Other Preferences</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
               <label className="block text-slate-300 text-sm font-medium mb-2">Location</label>
-              <Select 
-                value={profile.location || 'US'} 
+              <Select
+                value={profile.location || 'US'}
                 onValueChange={handleLocationChange}
                 disabled={isUpdating}
               >
@@ -136,13 +271,17 @@ const Settings = () => {
                 <SelectContent>
                   <SelectItem value="US">United States</SelectItem>
                   <SelectItem value="UK">United Kingdom</SelectItem>
+                  <SelectItem value="IN">India</SelectItem>
+                  <SelectItem value="CA">Canada</SelectItem>
+                  <SelectItem value="AU">Australia</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
               <label className="block text-slate-300 text-sm font-medium mb-2">Budget Preference</label>
-              <Select 
-                value={profile.budget_preference || 'medium'} 
+              <Select
+                value={profile.budget_preference || 'medium'}
                 onValueChange={handleBudgetChange}
                 disabled={isUpdating}
               >
@@ -159,25 +298,7 @@ const Settings = () => {
           </div>
         </CardContent>
       </Card>
-      {/* Dietary Preferences */}
-      <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Dietary Preferences</h2>
-          <div className="space-y-4">
-            {dietaryOptions.map((diet) => (
-              <div key={diet.value} className="flex items-center justify-between">
-                <span className="text-slate-300">{diet.label}</span>
-                <Switch 
-                  checked={profile.dietary_preferences?.includes(diet.value) || false}
-                  onCheckedChange={(checked) => handleDietaryChange(diet.value, checked)}
-                  disabled={isUpdating}
-                />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-      {/* Subscription */}
+      {/* Subscription & Ko-fi */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardContent className="p-6">
           <h2 className="text-xl font-semibold text-white mb-4">Subscription</h2>
@@ -189,12 +310,6 @@ const Settings = () => {
                   {profile.subscription_tier === 'pro' ? 'Pro Plan - Unlimited meal plans' : 'Free Plan - 1 meal plan per week'}
                 </div>
               </div>
-              {hasProAccess(profile) ? null : (
-                <div className="text-center">
-                  <p className="text-slate-300 mb-3">Upgrade to Pro for unlimited features!</p>
-                  <div id="kofi-widget-container" className="flex justify-center"></div>
-                </div>
-              )}
             </div>
             {profile.subscription_tier === 'pro' && (
               <div className="bg-green-600/20 border border-green-500/30 rounded-lg p-4">
@@ -204,6 +319,12 @@ const Settings = () => {
                 <p className="text-slate-300 text-sm mt-1">
                   Thank you for supporting ForkCast! You have access to all premium features.
                 </p>
+              </div>
+            )}
+            {!hasProAccess(profile) && (
+              <div className="mt-6 flex flex-col items-center">
+                <p className="text-slate-300 mb-3">Upgrade to Pro for unlimited features!</p>
+                <div id="kofi-widget-container" className="flex justify-center"></div>
               </div>
             )}
           </div>

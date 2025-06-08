@@ -105,6 +105,9 @@ export type Database = {
           stripe_customer_id: string | null
           subscription_tier: string | null
           updated_at: string | null
+          age: number | null
+          cuisine_preferences: string[] | null
+          food_likes: string | null
         }
         Insert: {
           budget_preference?: string | null
@@ -118,6 +121,9 @@ export type Database = {
           stripe_customer_id?: string | null
           subscription_tier?: string | null
           updated_at?: string | null
+          age?: number | null
+          cuisine_preferences?: string[] | null
+          food_likes?: string | null
         }
         Update: {
           budget_preference?: string | null
@@ -131,6 +137,9 @@ export type Database = {
           stripe_customer_id?: string | null
           subscription_tier?: string | null
           updated_at?: string | null
+          age?: number | null
+          cuisine_preferences?: string[] | null
+          food_likes?: string | null
         }
         Relationships: []
       }
