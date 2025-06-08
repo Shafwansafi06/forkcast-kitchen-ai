@@ -108,6 +108,8 @@ export type Database = {
           age: number | null
           cuisine_preferences: string[] | null
           food_likes: string | null
+          trial_start: string | null
+          trial_end: string | null
         }
         Insert: {
           budget_preference?: string | null
@@ -124,6 +126,8 @@ export type Database = {
           age?: number | null
           cuisine_preferences?: string[] | null
           food_likes?: string | null
+          trial_start?: string | null
+          trial_end?: string | null
         }
         Update: {
           budget_preference?: string | null
@@ -140,6 +144,8 @@ export type Database = {
           age?: number | null
           cuisine_preferences?: string[] | null
           food_likes?: string | null
+          trial_start?: string | null
+          trial_end?: string | null
         }
         Relationships: []
       }

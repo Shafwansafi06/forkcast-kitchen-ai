@@ -141,6 +141,14 @@ const Settings = () => {
     // eslint-disable-next-line
   }, [profile]);
 
+  const isTrialActive = (profile: any) => {
+    if (!profile) return false;
+    if (profile.subscription_tier === "trial" && profile.trial_end) {
+      return new Date(profile.trial_end) > new Date();
+    }
+    return false;
+  };
+
   if (!profile) {
     return (
       <div className="p-6">
@@ -150,67 +158,63 @@ const Settings = () => {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold text-white mb-6">Settings</h1>
-      {/* Account Settings */}
-      <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="p-6 space-y-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Profile</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-slate-300 text-sm font-medium mb-2">First Name</label>
-              <Input
-                value={firstName}
-                onChange={e => setFirstName(e.target.value)}
-                className="bg-slate-700 border-slate-600 text-slate-300"
-                disabled={isUpdating}
-              />
-            </div>
-            <div>
-              <label className="block text-slate-300 text-sm font-medium mb-2">Last Name</label>
-              <Input
-                value={lastName}
-                onChange={e => setLastName(e.target.value)}
-                className="bg-slate-700 border-slate-600 text-slate-300"
-                disabled={isUpdating}
-              />
-            </div>
-            <div>
-              <label className="block text-slate-300 text-sm font-medium mb-2">Email</label>
-              <Input
-                value={profile.email || ''}
-                className="bg-slate-700 border-slate-600 text-slate-300"
-                disabled
-              />
-            </div>
-            <div>
-              <label className="block text-slate-300 text-sm font-medium mb-2">Age</label>
-              <Input
-                type="number"
-                min={0}
-                value={age}
-                onChange={e => setAge(e.target.value)}
-                className="bg-slate-700 border-slate-600 text-slate-300"
-                disabled={isUpdating}
-              />
-            </div>
-          </div>
-          <div className="flex justify-end mt-4">
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow"
-              onClick={handleSaveProfile}
+    <div className="flex flex-col gap-6 p-4 max-w-2xl mx-auto w-full animate-fade-in">
+      {/* Profile */}
+      <Card className="bg-slate-800/50 border-slate-700 w-full">
+        <CardContent className="p-6 flex flex-col gap-4 sm:flex-row sm:gap-8">
+          <div className="flex-1 flex flex-col gap-4">
+            <label className="block text-slate-300 text-sm font-medium mb-2">First Name</label>
+            <Input
+              value={firstName}
+              onChange={e => setFirstName(e.target.value)}
+              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
               disabled={isUpdating}
-            >
-              {isUpdating ? 'Saving...' : 'Save Profile'}
-            </button>
+            />
+          </div>
+          <div className="flex-1 flex flex-col gap-4">
+            <label className="block text-slate-300 text-sm font-medium mb-2">Last Name</label>
+            <Input
+              value={lastName}
+              onChange={e => setLastName(e.target.value)}
+              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
+              disabled={isUpdating}
+            />
+          </div>
+          <div className="flex-1 flex flex-col gap-4">
+            <label className="block text-slate-300 text-sm font-medium mb-2">Email</label>
+            <Input
+              value={profile.email}
+              disabled
+              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
+            />
+          </div>
+          <div className="flex-1 flex flex-col gap-4">
+            <label className="block text-slate-300 text-sm font-medium mb-2">Age</label>
+            <Input
+              type="number"
+              min={0}
+              value={age}
+              onChange={e => setAge(e.target.value)}
+              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
+              disabled={isUpdating}
+            />
           </div>
         </CardContent>
+        <div className="flex justify-end px-6 pb-4">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow w-full sm:w-auto"
+            onClick={handleSaveProfile}
+            disabled={isUpdating}
+          >
+            {isUpdating ? 'Saving...' : 'Save Profile'}
+          </button>
+        </div>
       </Card>
       {/* Dietary Preferences */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-slate-800/50 border-slate-700 w-full">
         <CardContent className="p-6 space-y-6">
           <h2 className="text-xl font-semibold text-white mb-4">Dietary Preferences</h2>
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {dietaryOptions.map((diet) => (
               <div key={diet.value} className="flex items-center justify-between">
                 <span className="text-slate-300">{diet.label}</span>
@@ -225,7 +229,7 @@ const Settings = () => {
         </CardContent>
       </Card>
       {/* Cuisine Preferences */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-slate-800/50 border-slate-700 w-full">
         <CardContent className="p-6 space-y-6">
           <h2 className="text-xl font-semibold text-white mb-4">Cuisine Preferences</h2>
           <div className="flex flex-wrap gap-2">
@@ -244,65 +248,47 @@ const Settings = () => {
         </CardContent>
       </Card>
       {/* Food Likes */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-slate-800/50 border-slate-700 w-full">
         <CardContent className="p-6 space-y-6">
           <h2 className="text-xl font-semibold text-white mb-4">What do you like to eat?</h2>
           <Input
             value={foodLikes}
             onChange={e => setFoodLikes(e.target.value)}
             placeholder="e.g. spicy food, pasta, salads, etc."
-            className="bg-slate-700 border-slate-600 text-slate-300"
+            className="bg-slate-700 border-slate-600 text-slate-300 w-full"
             disabled={isUpdating}
           />
         </CardContent>
       </Card>
       {/* Budget & Location */}
-      <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="p-6 space-y-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Other Preferences</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-slate-300 text-sm font-medium mb-2">Location</label>
-              <Select
-                value={profile.location || 'US'}
-                onValueChange={handleLocationChange}
-                disabled={isUpdating}
-              >
-                <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-300">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="US">United States</SelectItem>
-                  <SelectItem value="UK">United Kingdom</SelectItem>
-                  <SelectItem value="IN">India</SelectItem>
-                  <SelectItem value="CA">Canada</SelectItem>
-                  <SelectItem value="AU">Australia</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="block text-slate-300 text-sm font-medium mb-2">Budget Preference</label>
-              <Select
-                value={profile.budget_preference || 'medium'}
-                onValueChange={handleBudgetChange}
-                disabled={isUpdating}
-              >
-                <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-300">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low Budget</SelectItem>
-                  <SelectItem value="medium">Medium Budget</SelectItem>
-                  <SelectItem value="high">High Budget</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <Card className="bg-slate-800/50 border-slate-700 w-full">
+        <CardContent className="p-6 flex flex-col gap-4 sm:flex-row sm:gap-8">
+          <div className="flex-1 flex flex-col gap-4">
+            <label className="block text-slate-300 text-sm font-medium mb-2">Budget Preference</label>
+            <Select value={profile.budget_preference || ''} onValueChange={handleBudgetChange}>
+              <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-300 w-full">
+                <SelectValue placeholder="Select budget" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1 flex flex-col gap-4">
+            <label className="block text-slate-300 text-sm font-medium mb-2">Location</label>
+            <Input
+              value={profile.location || 'US'}
+              onChange={e => handleLocationChange(e.target.value)}
+              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
+              disabled={isUpdating}
+            />
           </div>
         </CardContent>
       </Card>
       {/* Subscription & Ko-fi */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-slate-800/50 border-slate-700 w-full">
         <CardContent className="p-6">
           <h2 className="text-xl font-semibold text-white mb-4">Subscription</h2>
           <div className="space-y-4">
@@ -310,7 +296,7 @@ const Settings = () => {
               <div>
                 <div className="text-slate-300 font-medium">Current Plan</div>
                 <div className="text-slate-400 text-sm">
-                  {profile.subscription_tier === 'pro' ? 'Pro Plan - Unlimited meal plans' : 'Free Plan - 1 meal plan per week'}
+                  {profile.subscription_tier === 'pro' ? 'Pro Plan - Unlimited meal plans' : isTrialActive(profile) ? 'Free Trial - All features unlocked' : 'Free Plan - 1 meal plan per week'}
                 </div>
               </div>
             </div>
@@ -324,10 +310,16 @@ const Settings = () => {
                 </p>
               </div>
             )}
-            {!hasProAccess(profile) && (
-              <div className="mt-6 flex flex-col items-center">
-                <p className="text-slate-300 mb-3">Upgrade to Pro for unlimited features!</p>
-                <div id="kofi-widget-container" className="flex justify-center"></div>
+            {!hasProAccess(profile) && !isTrialActive(profile) && (
+              <div className="mt-6 flex flex-col items-center w-full">
+                <p className="text-slate-300 mb-3 text-center">Upgrade to Pro for unlimited features!</p>
+                <div id="kofi-widget-container" className="flex justify-center w-full"></div>
+              </div>
+            )}
+            {isTrialActive(profile) && (
+              <div className="mt-6 flex flex-col items-center w-full">
+                <p className="text-slate-300 mb-3 text-center">Your free trial is active! Enjoy all features for 7 days.</p>
+                <p className="text-slate-400 text-xs">Trial ends: {profile.trial_end ? new Date(profile.trial_end).toLocaleString() : ''}</p>
               </div>
             )}
           </div>
