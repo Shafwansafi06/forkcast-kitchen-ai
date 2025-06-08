@@ -158,51 +158,45 @@ const Settings = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 max-w-2xl mx-auto w-full animate-fade-in">
+    <div className="flex flex-col gap-8 p-2 sm:p-4 max-w-2xl mx-auto w-full animate-fade-in">
       {/* Profile */}
-      <Card className="bg-slate-800/50 border-slate-700 w-full">
-        <CardContent className="p-6 flex flex-col gap-4 sm:flex-row sm:gap-8">
-          <div className="flex-1 flex flex-col gap-4">
-            <label className="block text-slate-300 text-sm font-medium mb-2">First Name</label>
+      <Card className="bg-slate-800/50 border-slate-700 w-full mb-2">
+        <CardContent className="p-4 sm:p-6 flex flex-col gap-4 sm:flex-row sm:gap-8">
+          <div className="flex-1 flex flex-col gap-2">
+            <label className="block text-slate-300 text-base font-semibold mb-1">First Name</label>
             <Input
               value={firstName}
               onChange={e => setFirstName(e.target.value)}
-              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
+              className="bg-slate-700 border-slate-600 text-slate-300 w-full text-lg py-3"
               disabled={isUpdating}
             />
           </div>
-          <div className="flex-1 flex flex-col gap-4">
-            <label className="block text-slate-300 text-sm font-medium mb-2">Last Name</label>
+          <div className="flex-1 flex flex-col gap-2">
+            <label className="block text-slate-300 text-base font-semibold mb-1">Last Name</label>
             <Input
               value={lastName}
               onChange={e => setLastName(e.target.value)}
-              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
-              disabled={isUpdating}
-            />
-          </div>
-          <div className="flex-1 flex flex-col gap-4">
-            <label className="block text-slate-300 text-sm font-medium mb-2">Email</label>
-            <Input
-              value={profile.email}
-              disabled
-              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
-            />
-          </div>
-          <div className="flex-1 flex flex-col gap-4">
-            <label className="block text-slate-300 text-sm font-medium mb-2">Age</label>
-            <Input
-              type="number"
-              min={0}
-              value={age}
-              onChange={e => setAge(e.target.value)}
-              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
+              className="bg-slate-700 border-slate-600 text-slate-300 w-full text-lg py-3"
               disabled={isUpdating}
             />
           </div>
         </CardContent>
-        <div className="flex justify-end px-6 pb-4">
+        <div className="flex flex-col sm:flex-row gap-2 justify-end px-4 sm:px-6 pb-4">
+          <Input
+            value={profile.email}
+            disabled
+            className="bg-slate-700 border-slate-600 text-slate-300 w-full text-lg py-3 mb-2 sm:mb-0"
+          />
+          <Input
+            type="number"
+            min={0}
+            value={age}
+            onChange={e => setAge(e.target.value)}
+            className="bg-slate-700 border-slate-600 text-slate-300 w-full text-lg py-3"
+            disabled={isUpdating}
+          />
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow w-full sm:w-auto"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow w-full sm:w-auto text-lg"
             onClick={handleSaveProfile}
             disabled={isUpdating}
           >
@@ -211,17 +205,18 @@ const Settings = () => {
         </div>
       </Card>
       {/* Dietary Preferences */}
-      <Card className="bg-slate-800/50 border-slate-700 w-full">
-        <CardContent className="p-6 space-y-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Dietary Preferences</h2>
+      <Card className="bg-slate-800/50 border-slate-700 w-full mb-2">
+        <CardContent className="p-4 sm:p-6 space-y-6">
+          <h2 className="text-2xl font-bold text-white mb-4">Dietary Preferences</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {dietaryOptions.map((diet) => (
               <div key={diet.value} className="flex items-center justify-between">
-                <span className="text-slate-300">{diet.label}</span>
+                <span className="text-slate-300 text-lg">{diet.label}</span>
                 <Switch
                   checked={profile.dietary_preferences?.includes(diet.value) || false}
                   onCheckedChange={(checked) => handleDietaryChange(diet.value, checked)}
                   disabled={isUpdating}
+                  className="scale-125"
                 />
               </div>
             ))}
@@ -229,15 +224,15 @@ const Settings = () => {
         </CardContent>
       </Card>
       {/* Cuisine Preferences */}
-      <Card className="bg-slate-800/50 border-slate-700 w-full">
-        <CardContent className="p-6 space-y-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Cuisine Preferences</h2>
+      <Card className="bg-slate-800/50 border-slate-700 w-full mb-2">
+        <CardContent className="p-4 sm:p-6 space-y-6">
+          <h2 className="text-2xl font-bold text-white mb-4">Cuisine Preferences</h2>
           <div className="flex flex-wrap gap-2">
             {cuisineOptions.map((cuisine) => (
               <button
                 key={cuisine}
                 type="button"
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors duration-150 ${cuisinePreferences.includes(cuisine) ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-blue-700 hover:text-white'}`}
+                className={`px-5 py-3 rounded-full border text-lg font-medium transition-colors duration-150 ${cuisinePreferences.includes(cuisine) ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-blue-700 hover:text-white'}`}
                 onClick={() => toggleCuisine(cuisine)}
                 disabled={isUpdating}
               >
@@ -248,25 +243,25 @@ const Settings = () => {
         </CardContent>
       </Card>
       {/* Food Likes */}
-      <Card className="bg-slate-800/50 border-slate-700 w-full">
-        <CardContent className="p-6 space-y-6">
-          <h2 className="text-xl font-semibold text-white mb-4">What do you like to eat?</h2>
+      <Card className="bg-slate-800/50 border-slate-700 w-full mb-2">
+        <CardContent className="p-4 sm:p-6 space-y-6">
+          <h2 className="text-2xl font-bold text-white mb-4">What do you like to eat?</h2>
           <Input
             value={foodLikes}
             onChange={e => setFoodLikes(e.target.value)}
             placeholder="e.g. spicy food, pasta, salads, etc."
-            className="bg-slate-700 border-slate-600 text-slate-300 w-full"
+            className="bg-slate-700 border-slate-600 text-slate-300 w-full text-lg py-3"
             disabled={isUpdating}
           />
         </CardContent>
       </Card>
       {/* Budget & Location */}
-      <Card className="bg-slate-800/50 border-slate-700 w-full">
-        <CardContent className="p-6 flex flex-col gap-4 sm:flex-row sm:gap-8">
-          <div className="flex-1 flex flex-col gap-4">
-            <label className="block text-slate-300 text-sm font-medium mb-2">Budget Preference</label>
+      <Card className="bg-slate-800/50 border-slate-700 w-full mb-2">
+        <CardContent className="p-4 sm:p-6 flex flex-col gap-4 sm:flex-row sm:gap-8">
+          <div className="flex-1 flex flex-col gap-2">
+            <label className="block text-slate-300 text-base font-semibold mb-1">Budget Preference</label>
             <Select value={profile.budget_preference || ''} onValueChange={handleBudgetChange}>
-              <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-300 w-full">
+              <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-300 w-full text-lg py-3">
                 <SelectValue placeholder="Select budget" />
               </SelectTrigger>
               <SelectContent>
@@ -276,26 +271,26 @@ const Settings = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex-1 flex flex-col gap-4">
-            <label className="block text-slate-300 text-sm font-medium mb-2">Location</label>
+          <div className="flex-1 flex flex-col gap-2">
+            <label className="block text-slate-300 text-base font-semibold mb-1">Location</label>
             <Input
               value={profile.location || 'US'}
               onChange={e => handleLocationChange(e.target.value)}
-              className="bg-slate-700 border-slate-600 text-slate-300 w-full"
+              className="bg-slate-700 border-slate-600 text-slate-300 w-full text-lg py-3"
               disabled={isUpdating}
             />
           </div>
         </CardContent>
       </Card>
       {/* Subscription & Ko-fi */}
-      <Card className="bg-slate-800/50 border-slate-700 w-full">
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Subscription</h2>
+      <Card className="bg-slate-800/50 border-slate-700 w-full mb-2">
+        <CardContent className="p-4 sm:p-6">
+          <h2 className="text-2xl font-bold text-white mb-4">Subscription</h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-slate-300 font-medium">Current Plan</div>
-                <div className="text-slate-400 text-sm">
+                <div className="text-slate-300 font-medium text-lg">Current Plan</div>
+                <div className="text-slate-400 text-base">
                   {profile.subscription_tier === 'pro' ? 'Pro Plan - Unlimited meal plans' : isTrialActive(profile) ? 'Free Trial - All features unlocked' : 'Free Plan - 1 meal plan per week'}
                 </div>
               </div>
@@ -303,23 +298,23 @@ const Settings = () => {
             {profile.subscription_tier === 'pro' && (
               <div className="bg-green-600/20 border border-green-500/30 rounded-lg p-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-green-400 font-medium">✨ Pro Member</span>
+                  <span className="text-green-400 font-medium text-lg">✨ Pro Member</span>
                 </div>
-                <p className="text-slate-300 text-sm mt-1">
+                <p className="text-slate-300 text-base mt-1">
                   Thank you for supporting ForkCast! You have access to all premium features.
                 </p>
               </div>
             )}
             {!hasProAccess(profile) && !isTrialActive(profile) && (
               <div className="mt-6 flex flex-col items-center w-full">
-                <p className="text-slate-300 mb-3 text-center">Upgrade to Pro for unlimited features!</p>
+                <p className="text-slate-300 mb-3 text-center text-lg">Upgrade to Pro for unlimited features!</p>
                 <div id="kofi-widget-container" className="flex justify-center w-full"></div>
               </div>
             )}
             {isTrialActive(profile) && (
               <div className="mt-6 flex flex-col items-center w-full">
-                <p className="text-slate-300 mb-3 text-center">Your free trial is active! Enjoy all features for 7 days.</p>
-                <p className="text-slate-400 text-xs">Trial ends: {profile.trial_end ? new Date(profile.trial_end).toLocaleString() : ''}</p>
+                <p className="text-slate-300 mb-3 text-center text-lg">Your free trial is active! Enjoy all features for 7 days.</p>
+                <p className="text-slate-400 text-base">Trial ends: {profile.trial_end ? new Date(profile.trial_end).toLocaleString() : ''}</p>
               </div>
             )}
           </div>

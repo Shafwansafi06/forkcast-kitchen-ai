@@ -56,9 +56,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto pt-16 md:pt-0 px-2 md:px-0">
           {renderContent()}
         </main>
       </div>
