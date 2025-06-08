@@ -117,8 +117,8 @@ const Settings = () => {
   };
 
   useEffect(() => {
+    // Only inject Ko-fi widget script if not Pro and only once
     if (!hasProAccess(profile)) {
-      // Inject Ko-fi widget script
       if (!document.getElementById('kofi-script')) {
         const script = document.createElement('script');
         script.id = 'kofi-script';
@@ -127,15 +127,16 @@ const Settings = () => {
         script.onload = () => {
           if (window.kofiwidget2) {
             window.kofiwidget2.init('Subscribe to Pro using Ko-fi', '#72a4f2', 'G2G81FXIN4');
-            window.kofiwidget2.draw();
+            window.kofiwidget2.draw('kofi-widget-container');
           }
         };
         document.body.appendChild(script);
       } else if (window.kofiwidget2) {
         window.kofiwidget2.init('Subscribe to Pro using Ko-fi', '#72a4f2', 'G2G81FXIN4');
-        window.kofiwidget2.draw();
+        window.kofiwidget2.draw('kofi-widget-container');
       }
     }
+    // eslint-disable-next-line
   }, [profile]);
 
   if (!profile) {
