@@ -45,7 +45,11 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
       {profile && (
         <div className="mb-6 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
           <p className="text-slate-400 text-xs">Welcome back,</p>
-          <p className="text-white font-medium">{profile.first_name || 'User'}</p>
+          <p className="text-white font-medium">
+            {profile.first_name || profile.last_name
+              ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+              : (profile.email ? profile.email.split('@')[0] : 'User')}
+          </p>
           {profile.subscription_tier === 'pro' && (
             <p className="text-yellow-400 text-xs font-medium mt-1">Pro Member</p>
           )}
