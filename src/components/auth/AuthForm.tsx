@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthFormProps {
   mode: 'signin' | 'signup';
@@ -45,6 +46,23 @@ const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/auth/callback',
+        },
+      });
+      if (error) throw error;
+      // The user will be redirected, so no need to do anything else here
+    } catch (error: any) {
+      toast.error(error.message || 'Google sign-in failed');
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#7c3aed] flex items-center justify-center">
       <Card className="w-full max-w-xl p-10 rounded-3xl shadow-2xl border border-slate-200/30 bg-white/90">
@@ -54,6 +72,20 @@ const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
           <p className="text-base text-slate-600 mt-1">{mode === 'signin' ? 'Sign in to your account' : 'Create your free account'}</p>
         </div>
         <CardContent className="space-y-8">
+          <Button
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg text-lg shadow flex items-center justify-center gap-2"
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+          >
+            <img src="/google.svg" alt="Google" className="h-5 w-5" />
+            {loading ? 'Signing in...' : 'Continue with Google'}
+          </Button>
+          <div className="flex items-center gap-2 my-2">
+            <div className="flex-1 h-px bg-slate-300" />
+            <span className="text-slate-500 text-sm">or</span>
+            <div className="flex-1 h-px bg-slate-300" />
+          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             {mode === 'signup' && (
               <div className="flex gap-4">
