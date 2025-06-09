@@ -63,6 +63,26 @@ const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    let targetEmail = email;
+    if (!targetEmail) {
+      targetEmail = window.prompt('Enter your email to reset your password:') || '';
+    }
+    if (!targetEmail) return;
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
+        redirectTo: window.location.origin + '/auth/callback',
+      });
+      if (error) throw error;
+      toast.success('Password reset email sent! Check your inbox.');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to send reset email');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#7c3aed] flex items-center justify-center">
       <Card className="w-full max-w-xl p-10 rounded-3xl shadow-2xl border border-slate-200/30 bg-white/90">
@@ -136,6 +156,16 @@ const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
                 required
                 minLength={6}
               />
+              {mode === 'signin' && (
+                <button
+                  type="button"
+                  className="text-blue-600 hover:underline text-sm mt-1"
+                  onClick={handleForgotPassword}
+                  disabled={loading}
+                >
+                  Forgot your password?
+                </button>
+              )}
             </div>
             <Button className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg text-lg shadow" type="submit" disabled={loading}>
               {loading ? 'Processing...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
@@ -143,10 +173,23 @@ const AuthForm = ({ mode, onToggleMode }: AuthFormProps) => {
           </form>
           <p className="text-base text-center text-slate-600 mt-4">
             {mode === 'signin'
-              ? <>New to ForkCast? <button type="button" className="text-blue-600 hover:underline" onClick={onToggleMode}>Create your free account →</button></>
-              : <>Already have an account? <button type="button" className="text-blue-600 hover:underline" onClick={onToggleMode}>← Back to sign in</button></>
+              ? <>
+                  New to ForkCast? <button type="button" className="text-blue-600 hover:underline" onClick={onToggleMode}>Create your free account →</button>
+                </>
+              : <>
+                  Already have an account? <button type="button" className="text-blue-600 hover:underline" onClick={onToggleMode}>← Back to sign in</button>
+                </>
             }
           </p>
+          <div className="text-center mt-2">
+            <button
+              type="button"
+              className="text-purple-700 hover:underline text-base font-semibold"
+              onClick={() => window.open('https://descriptusercontent.com/published/2857cd60-97db-477c-b324-f5657b18b9f6/original.mp4', '_blank')}
+            >
+              🎬 Watch Demo
+            </button>
+          </div>
         </CardContent>
       </Card>
     </div>
