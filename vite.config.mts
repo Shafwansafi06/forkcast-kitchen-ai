@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     rollupOptions: {
-      external: ['posthog-js'],
+      external: ['posthog-js', 'posthog-js/react'],
     },
   },
 }));
