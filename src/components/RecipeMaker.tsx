@@ -32,7 +32,7 @@ const RecipeMaker = () => {
           setCookingTime(fetchedTime);
           setTimer(fetchedTime * 60);
         })
-        .catch((err) => setError('Failed to fetch recipe steps.'))
+        .catch((err) => setError(err.message))
         .finally(() => setLoading(false));
     }
     // eslint-disable-next-line

@@ -113,7 +113,20 @@ export async function getGeminiRecipeStepsAndTime(recipeName: string): Promise<{
   if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
   const data = await response.json();
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  const match = text.match(/\{[\s\S]*\}/);
-  if (match) return JSON.parse(match[0]);
-  throw new Error('Gemini did not return valid steps JSON.');
+  console.log('Gemini raw response:', text); // LOG RAW RESPONSE
+  // Try to extract JSON block
+  let match = text.match(/\{[\s\S]*\}/);
+  if (!match) {
+    // Try to remove markdown/code block wrappers
+    const cleaned = text.replace(/```json|```/g, '').trim();
+    match = cleaned.match(/\{[\s\S]*\}/);
+  }
+  if (match) {
+    try {
+      return JSON.parse(match[0]);
+    } catch (err) {
+      throw new Error('Gemini returned invalid JSON: ' + match[0]);
+    }
+  }
+  throw new Error('Gemini did not return valid steps JSON. Raw response: ' + text);
 } 
