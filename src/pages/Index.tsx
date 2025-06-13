@@ -3,7 +3,7 @@ import Sidebar from "@/components/Sidebar";
 import Dashboard from "@/components/Dashboard";
 import MealPlan from "@/components/MealPlan";
 import GroceryList from "@/components/GroceryList";
-import Settings from "@/components/Settings";
+// import Settings from "@/components/Settings";
 import RecipeMaker from "@/components/RecipeMaker";
 import { Helmet } from "react-helmet";
 
@@ -47,7 +47,7 @@ const Index = () => {
               `}
             </script>
           </Helmet>
-          <Settings />
+          {/* <Settings /> */}
           <div className="mt-8 flex justify-center">
             <div id="paypal-container-NE3TAXDBJAZKL"></div>
           </div>
