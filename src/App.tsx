@@ -1,6 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { RouterProvider } from "react-router-dom";
+import { router } from "@/router";
 console.log('App.tsx loaded');
 const queryClient = new QueryClient();
 const App = () => {
@@ -8,7 +12,9 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <div style={{ color: 'green', fontSize: 32, padding: 32 }}>Hello World - AuthProvider Works!</div>
+          <Toaster />
+          <Sonner />
+          <RouterProvider router={router} />
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
