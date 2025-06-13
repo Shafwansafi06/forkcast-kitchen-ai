@@ -9,8 +9,11 @@ import { Helmet } from "react-helmet";
 
 const Index = () => {
   return (
-    <div style={{ color: 'blue', fontSize: 32, padding: 32 }}>
-      Minimal Dashboard Render Test: If you see this, Index.tsx is working.
+    <div style={{ display: 'flex', flexDirection: 'row' }}>
+      <Sidebar activeTab="dashboard" onTabChange={() => {}} />
+      <div style={{ color: 'blue', fontSize: 32, padding: 32 }}>
+        Minimal Dashboard Render Test: If you see this, Index.tsx and Sidebar are working.
+      </div>
     </div>
   );
 };
