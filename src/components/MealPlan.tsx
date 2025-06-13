@@ -283,15 +283,15 @@ const MealPlan = () => {
                     {['Breakfast', 'Lunch', 'Dinner'].map((mealType) => {
                       const meal = mealPlan[day]?.[mealType]?.meal || mealPlan[day]?.[mealType?.toLowerCase()] || 'Not planned';
                       const calories = mealPlan[day]?.[mealType]?.calories || mealPlan[day]?.[`${mealType.toLowerCase()}_calories`] || 0;
-                      const diff = mealDifficulties[`${day}-${mealType}`]?.difficulty || 'Not Rated';
+                      const diff = mealDifficulties[`${day}-${mealType}`]?.difficulty;
                       const time = mealDifficulties[`${day}-${mealType}`]?.time;
                       return (
                         <div
                           key={mealType}
                           className="bg-slate-700/50 rounded-lg p-3 relative group cursor-pointer hover:ring-2 hover:ring-blue-400 transition"
-                          onClick={() => navigate('/?tab=recipe-maker', { state: { recipe: { name: meal, cookingTime: time, tags: [diff] } } })}
+                          onClick={() => navigate('/dashboard?tab=recipe-maker', { state: { recipe: { name: meal, cookingTime: time } } })}
                         >
-                          <DifficultyBadge difficulty={diff} />
+                          {diff && <DifficultyBadge difficulty={diff} />}
                           <div className="text-xs text-slate-400 mb-1">{mealType}</div>
                           <div className="text-white text-sm font-medium">{meal}</div>
                           <div className="text-xs text-slate-400">{calories} kcal</div>
