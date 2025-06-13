@@ -1,152 +1,84 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
 
-const dietaryTags = ['Vegetarian', 'Vegan', 'Gluten Free', 'Keto', 'Dairy Free', 'Nut Free'];
-
 const RecipeMaker = () => {
   const location = useLocation();
+  // Prefill all data from navigation state
   const prefill = location.state?.recipe || {};
-  const [name, setName] = useState(prefill.name || '');
-  const [ingredients, setIngredients] = useState(prefill.ingredients || ['']);
-  const [steps, setSteps] = useState(prefill.steps || '');
-  const [cookingTime, setCookingTime] = useState(prefill.cookingTime || '');
-  const [tags, setTags] = useState<string[]>(prefill.tags || []);
-  const [timer, setTimer] = useState<number | null>(null);
+  const name = prefill.name || '';
+  const ingredients = prefill.ingredients || [];
+  const steps = Array.isArray(prefill.steps) ? prefill.steps : (typeof prefill.steps === 'string' ? prefill.steps.split(/\n|\r|\d+\./).map(s => s.trim()).filter(Boolean) : []);
+  const cookingTime = prefill.cookingTime || 0;
+  const tags = prefill.tags || [];
+
+  // Step-by-step navigation
+  const [currentStep, setCurrentStep] = useState(0);
+  // Timer logic
+  const [timer, setTimer] = useState(cookingTime * 60);
   const [timerActive, setTimerActive] = useState(false);
-  const [savedRecipes, setSavedRecipes] = useState<any[]>([]);
 
   useEffect(() => {
-    if (timerActive && timer !== null && timer > 0) {
-      const interval = setInterval(() => setTimer((t) => (t ? t - 1 : 0)), 1000);
-      return () => clearInterval(interval);
+    let interval: NodeJS.Timeout | null = null;
+    if (timerActive && timer > 0) {
+      interval = setInterval(() => setTimer(t => t - 1), 1000);
     }
-    if (timer === 0) setTimerActive(false);
+    if (timer === 0 && timerActive) setTimerActive(false);
+    return () => { if (interval) clearInterval(interval); };
   }, [timerActive, timer]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('forkcast_custom_recipes');
-    if (saved) setSavedRecipes(JSON.parse(saved));
-  }, []);
-
-  const handleIngredientChange = (idx: number, value: string) => {
-    setIngredients((prev) => prev.map((ing, i) => (i === idx ? value : ing)));
-  };
-  const addIngredient = () => setIngredients((prev) => [...prev, '']);
-  const removeIngredient = (idx: number) => setIngredients((prev) => prev.filter((_, i) => i !== idx));
-
-  const handleTagToggle = (tag: string) => {
-    setTags((prev) => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
-  };
-
-  const handleSave = () => {
-    const recipe = { name, ingredients: ingredients.filter(Boolean), steps, cookingTime, tags };
-    const updated = [...savedRecipes, recipe];
-    setSavedRecipes(updated);
-    localStorage.setItem('forkcast_custom_recipes', JSON.stringify(updated));
-    alert('Recipe saved!');
-  };
-
-  const handleStartTimer = () => {
-    if (cookingTime && !isNaN(Number(cookingTime))) {
-      setTimer(Number(cookingTime) * 60);
-      setTimerActive(true);
-    }
-  };
 
   const formatTimer = (t: number) => `${Math.floor(t / 60)}:${(t % 60).toString().padStart(2, '0')}`;
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <Card className="bg-slate-800/70 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-white text-2xl flex items-center justify-between">
-            Recipe Maker
-            {timer !== null && timerActive && (
-              <span className="ml-4 px-3 py-1 rounded bg-blue-600 text-white font-mono text-lg">⏱ {formatTimer(timer)}</span>
-            )}
+    <div className="p-6 max-w-2xl mx-auto animate-fade-in">
+      <Card className="bg-slate-800/80 border-slate-700 shadow-xl">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-white text-2xl flex items-center gap-2">
+            {name}
           </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <Input
-            className="bg-slate-700 border-slate-600 text-white"
-            placeholder="Recipe Name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-          />
-          <div>
-            <label className="block text-slate-300 mb-2">Ingredients</label>
-            {ingredients.map((ing, idx) => (
-              <div key={idx} className="flex gap-2 mb-2">
-                <Input
-                  className="bg-slate-700 border-slate-600 text-white"
-                  placeholder={`Ingredient ${idx + 1}`}
-                  value={ing}
-                  onChange={e => handleIngredientChange(idx, e.target.value)}
-                />
-                <Button variant="outline" onClick={() => removeIngredient(idx)} disabled={ingredients.length === 1}>Remove</Button>
-              </div>
-            ))}
-            <Button variant="outline" onClick={addIngredient}>Add Ingredient</Button>
-          </div>
-          <div>
-            <label className="block text-slate-300 mb-2">Steps</label>
-            <textarea
-              className="w-full p-3 bg-slate-700 border-slate-600 text-white rounded-md resize-none h-24"
-              value={steps}
-              onChange={e => setSteps(e.target.value)}
-              placeholder="Describe the steps..."
-            />
-          </div>
-          <div>
-            <label className="block text-slate-300 mb-2">Cooking Time (minutes)</label>
-            <Input
-              type="number"
-              className="bg-slate-700 border-slate-600 text-white"
-              value={cookingTime}
-              onChange={e => setCookingTime(e.target.value)}
-              placeholder="e.g. 30"
-            />
-            <Button className="mt-2" onClick={handleStartTimer} disabled={timerActive || !cookingTime}>Start Timer</Button>
-          </div>
-          <div>
-            <label className="block text-slate-300 mb-2">Dietary Tags</label>
-            <div className="flex flex-wrap gap-2">
-              {dietaryTags.map(tag => (
-                <Button
-                  key={tag}
-                  variant={tags.includes(tag) ? 'default' : 'outline'}
-                  className={tags.includes(tag) ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300'}
-                  onClick={() => handleTagToggle(tag)}
-                >
-                  {tag}
-                </Button>
-              ))}
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col items-end">
+              <span className="text-xs text-slate-400">Cooking Time</span>
+              <span className="text-blue-400 font-bold text-lg">⏱ {cookingTime} min</span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-xs text-slate-400">Timer</span>
+              <span className="ml-2 px-3 py-1 rounded bg-blue-600 text-white font-mono text-lg">
+                {formatTimer(timer)}
+              </span>
+              <Button size="sm" className="mt-1" onClick={() => setTimerActive(!timerActive)}>
+                {timerActive ? 'Pause' : 'Start'}
+              </Button>
             </div>
           </div>
-          <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white" onClick={handleSave}>Save Recipe</Button>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex flex-wrap gap-2 mb-2">
+            {tags && tags.length > 0 && tags.map((tag: string) => (
+              <span key={tag} className="bg-blue-700 text-white px-3 py-1 rounded-full text-xs font-semibold">{tag}</span>
+            ))}
+          </div>
+          <div className="mb-4">
+            <h3 className="text-lg text-white font-semibold mb-2">Ingredients</h3>
+            <ul className="list-disc list-inside text-slate-200">
+              {ingredients.map((ing: string, idx: number) => (
+                <li key={idx}>{ing}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="mb-4">
+            <h3 className="text-lg text-white font-semibold mb-2">Step {currentStep + 1} of {steps.length}</h3>
+            <div className="bg-slate-700/80 rounded-lg p-4 text-white text-lg min-h-[80px] flex items-center">
+              {steps[currentStep]}
+            </div>
+            <div className="flex justify-between mt-4">
+              <Button onClick={() => setCurrentStep(s => Math.max(0, s - 1))} disabled={currentStep === 0} variant="outline">Previous</Button>
+              <Button onClick={() => setCurrentStep(s => Math.min(steps.length - 1, s + 1))} disabled={currentStep === steps.length - 1} variant="default">Next</Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
-      {/* List of saved recipes */}
-      <div className="mt-8">
-        <h2 className="text-xl text-white mb-4">Saved Recipes</h2>
-        {savedRecipes.length === 0 && <p className="text-slate-400">No recipes saved yet.</p>}
-        {savedRecipes.map((r, i) => (
-          <Card key={i} className="mb-4 bg-slate-700/70 border-slate-600">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">{r.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-slate-300 mb-2">Ingredients: {r.ingredients.join(', ')}</div>
-              <div className="text-slate-300 mb-2">Steps: {r.steps}</div>
-              <div className="text-slate-300 mb-2">Cooking Time: {r.cookingTime} min</div>
-              <div className="text-slate-300 mb-2">Tags: {r.tags.join(', ')}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 };

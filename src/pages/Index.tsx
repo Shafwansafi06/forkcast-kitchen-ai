@@ -38,9 +38,9 @@ const Index = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
+    <div className="flex flex-row min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div style={{ flex: 1 }}>
+      <div className="flex-1 min-h-screen overflow-y-auto">
         <ErrorBoundary>
           {renderContent()}
         </ErrorBoundary>
