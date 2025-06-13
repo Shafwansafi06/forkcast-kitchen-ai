@@ -1,11 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
 const queryClient = new QueryClient();
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <div style={{ color: 'green', fontSize: 32, padding: 32 }}>
-        QueryClientProvider: If you see this, React Query is working.
-      </div>
+      <TooltipProvider>
+        <div style={{ color: 'green', fontSize: 32, padding: 32 }}>
+          TooltipProvider: If you see this, TooltipProvider is working.
+        </div>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };
