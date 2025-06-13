@@ -9,7 +9,6 @@ import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AuthCallback from "./pages/AuthCallback";
-import { capturePostHogEvent } from "@/utils/posthog";
 import React, { useState } from 'react';
 
 const queryClient = new QueryClient();
