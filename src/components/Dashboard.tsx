@@ -4,7 +4,7 @@ import AIHelper from './AIHelper';
 import { useProfile } from "@/hooks/useProfile";
 import { useState, useEffect } from "react";
 import { Calendar, ChefHat, ShoppingCart, TrendingUp, Sparkles, Clock, List, DollarSign } from "lucide-react";
-// import { getGeminiMealSuggestions } from '@/utils/gemini';
+import { getGeminiMealSuggestions } from '@/utils/gemini';
 // import { createClient } from '@supabase/supabase-js';
 
 // const supabase = createClient(
