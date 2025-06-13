@@ -5,6 +5,12 @@ import { useProfile } from "@/hooks/useProfile";
 import { useState, useEffect } from "react";
 import { Calendar, ChefHat, ShoppingCart, TrendingUp, Sparkles, Clock, List, DollarSign } from "lucide-react";
 import { getGeminiMealSuggestions } from '@/utils/gemini';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
 
 const Dashboard = () => {
   const { profile, updateProfile } = useProfile();
@@ -33,6 +39,41 @@ const Dashboard = () => {
     
     fetchRecentMeals();
   }, []);
+
+  useEffect(() => {
+    // Fetch user-specific stats from Supabase
+    const fetchStats = async () => {
+      if (!profile?.id) return;
+      // Meals Planned
+      const { count: mealPlans } = await supabase
+        .from('meal_plans')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profile.id);
+      // Grocery Lists
+      const { count: groceryLists } = await supabase
+        .from('grocery_lists')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profile.id);
+      // Recipes Tried
+      const { count: recipesTried } = await supabase
+        .from('recipes_tried')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profile.id);
+      // Budget Saved (sum)
+      const { data: budgetRows } = await supabase
+        .from('budget_savings')
+        .select('amount')
+        .eq('user_id', profile.id);
+      const budgetSaved = budgetRows?.reduce((sum, row) => sum + (row.amount || 0), 0) || 0;
+      setWeeklyStats({
+        mealsPlanned: mealPlans || 0,
+        groceryLists: groceryLists || 0,
+        budgetSaved,
+        recipesTried: recipesTried || 0
+      });
+    };
+    fetchStats();
+  }, [profile]);
 
   const fetchGeminiSuggestions = async () => {
     setGeminiLoading(true);
@@ -195,7 +236,7 @@ const Dashboard = () => {
               </Button>
               <Button 
                 className="w-full justify-start bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                onClick={() => window.open('https://spoonacular.com/recipes', '_blank')}
+                onClick={() => handleTabChange('recipe-maker')}
               >
                 <ChefHat className="w-4 h-4 mr-2" />
                 Browse recipes

@@ -4,6 +4,7 @@ import Dashboard from "@/components/Dashboard";
 import MealPlan from "@/components/MealPlan";
 import GroceryList from "@/components/GroceryList";
 import Settings from "@/components/Settings";
+import RecipeMaker from "@/components/RecipeMaker";
 import { Helmet } from "react-helmet";
 
 const Index = () => {
@@ -13,7 +14,7 @@ const Index = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get('tab');
-    if (tab && ['dashboard', 'meal-plan', 'grocery-list', 'settings'].includes(tab)) {
+    if (tab && ['dashboard', 'meal-plan', 'grocery-list', 'settings', 'recipe-maker'].includes(tab)) {
       setActiveTab(tab);
     }
   }, []);
@@ -26,6 +27,8 @@ const Index = () => {
         return <MealPlan />;
       case 'grocery-list':
         return <GroceryList />;
+      case 'recipe-maker':
+        return <RecipeMaker />;
       case 'settings':
         return <>
           <Helmet>

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Calendar, Settings, ShoppingCart, BarChart3, LogOut, Menu } from "lucide-react";
+import { Calendar, Settings, ShoppingCart, BarChart3, LogOut, Menu, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -22,6 +22,7 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'meal-plan', label: 'Meal Plan', icon: Calendar },
     { id: 'grocery-list', label: 'Grocery List', icon: ShoppingCart },
+    { id: 'recipe-maker', label: 'Recipe Maker', icon: ChefHat },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

@@ -8,7 +8,21 @@ import { useState, useEffect } from "react";
 import { useProfile, hasProAccess } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { Loader2, ChefHat } from "lucide-react";
-import { getGeminiMealSuggestions } from '@/utils/gemini';
+import { getGeminiMealSuggestions, getGeminiMealDifficulty } from '@/utils/gemini';
+import { useNavigate } from 'react-router-dom';
+
+const difficultyColors = {
+  'Easy': 'bg-green-600',
+  'Medium': 'bg-yellow-500',
+  'Time-Consuming': 'bg-orange-600',
+};
+
+function DifficultyBadge({ difficulty }) {
+  if (!difficulty) return null;
+  return (
+    <span className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold text-white ${difficultyColors[difficulty] || 'bg-gray-500'}`}>{difficulty}</span>
+  );
+}
 
 const MealPlan = () => {
   const { profile } = useProfile();
@@ -26,6 +40,8 @@ const MealPlan = () => {
   const [weeklyBudget, setWeeklyBudget] = useState([120]);
   const [cookingTimeLimit, setCookingTimeLimit] = useState("30");
   const [allergies, setAllergies] = useState("");
+  const navigate = useNavigate();
+  const [mealDifficulties, setMealDifficulties] = useState({});
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -36,6 +52,29 @@ const MealPlan = () => {
       setMealPlan(JSON.parse(savedMealPlan));
     }
   }, []);
+
+  useEffect(() => {
+    // On mealPlan change, categorize all meals
+    const categorizeMeals = async () => {
+      const newDiffs = {};
+      for (const day of days) {
+        for (const mealType of ['Breakfast', 'Lunch', 'Dinner']) {
+          const meal = mealPlan[day]?.[mealType]?.meal || mealPlan[day]?.[mealType?.toLowerCase()] || '';
+          const time = mealPlan[day]?.[mealType]?.time || null;
+          if (meal) {
+            try {
+              const { difficulty, time: estTime } = await getGeminiMealDifficulty(meal, '', time);
+              newDiffs[`${day}-${mealType}`] = { difficulty, time: estTime };
+            } catch {
+              newDiffs[`${day}-${mealType}`] = { difficulty: null, time: null };
+            }
+          }
+        }
+      }
+      setMealDifficulties(newDiffs);
+    };
+    if (Object.keys(mealPlan).length > 0) categorizeMeals();
+  }, [mealPlan]);
 
   const generateMealPlan = async () => {
     if (!hasProAccess(profile)) {
@@ -232,21 +271,26 @@ const MealPlan = () => {
                 <CardContent className="p-4">
                   <h3 className="text-blue-400 font-semibold mb-3">{day}</h3>
                   <div className="space-y-3">
-                    <div className="bg-slate-700/50 rounded-lg p-3">
-                      <div className="text-xs text-slate-400 mb-1">Breakfast</div>
-                      <div className="text-white text-sm font-medium">{mealPlan[day]?.Breakfast?.meal || mealPlan[day]?.breakfast || 'Not planned'}</div>
-                      <div className="text-xs text-slate-400">{mealPlan[day]?.Breakfast?.calories || mealPlan[day]?.breakfast_calories || Math.round((calorieTarget[0]) * 0.25)} kcal</div>
-                    </div>
-                    <div className="bg-slate-700/50 rounded-lg p-3">
-                      <div className="text-xs text-slate-400 mb-1">Lunch</div>
-                      <div className="text-white text-sm font-medium">{mealPlan[day]?.Lunch?.meal || mealPlan[day]?.lunch || 'Not planned'}</div>
-                      <div className="text-xs text-slate-400">{mealPlan[day]?.Lunch?.calories || mealPlan[day]?.lunch_calories || Math.round((calorieTarget[0]) * 0.35)} kcal</div>
-                    </div>
-                    <div className="bg-slate-700/50 rounded-lg p-3">
-                      <div className="text-xs text-slate-400 mb-1">Dinner</div>
-                      <div className="text-white text-sm font-medium">{mealPlan[day]?.Dinner?.meal || mealPlan[day]?.dinner || 'Not planned'}</div>
-                      <div className="text-xs text-slate-400">{mealPlan[day]?.Dinner?.calories || mealPlan[day]?.dinner_calories || Math.round((calorieTarget[0]) * 0.4)} kcal</div>
-                    </div>
+                    {['Breakfast', 'Lunch', 'Dinner'].map((mealType) => {
+                      const meal = mealPlan[day]?.[mealType]?.meal || mealPlan[day]?.[mealType?.toLowerCase()] || 'Not planned';
+                      const calories = mealPlan[day]?.[mealType]?.calories || mealPlan[day]?.[`${mealType.toLowerCase()}_calories`] || 0;
+                      const diff = mealDifficulties[`${day}-${mealType}`]?.difficulty;
+                      const time = mealDifficulties[`${day}-${mealType}`]?.time;
+                      return (
+                        <div
+                          key={mealType}
+                          className="bg-slate-700/50 rounded-lg p-3 relative group cursor-pointer hover:ring-2 hover:ring-blue-400 transition"
+                          onClick={() => navigate('/dashboard?tab=recipe-maker', { state: { recipe: { name: meal, cookingTime: time } } })}
+                        >
+                          <DifficultyBadge difficulty={diff} />
+                          <div className="text-xs text-slate-400 mb-1">{mealType}</div>
+                          <div className="text-white text-sm font-medium">{meal}</div>
+                          <div className="text-xs text-slate-400">{calories} kcal</div>
+                          {time && <div className="text-xs text-blue-400 mt-1">⏱ {time} min</div>}
+                          <div className="hidden group-hover:block absolute inset-0 bg-black/60 flex items-center justify-center text-white text-sm font-bold rounded-lg transition">Click to open in Recipe Maker</div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
