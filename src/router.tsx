@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
-import Landing from "@/pages/Landing";
+import Index from "@/pages/Index";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Landing />,
+    path: "/dashboard",
+    element: <Index />,
   },
 ]); 
