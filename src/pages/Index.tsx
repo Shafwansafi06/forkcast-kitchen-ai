@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
-// import Dashboard from "@/components/Dashboard";
+import Dashboard from "@/components/Dashboard";
 import MealPlan from "@/components/MealPlan";
 import GroceryList from "@/components/GroceryList";
 // import Settings from "@/components/Settings";
@@ -17,10 +17,7 @@ const Index = () => {
           Minimal Dashboard Render Test: If you see this, Index.tsx and Sidebar are working.
         </div>
         <ErrorBoundary>
-          {/* <Dashboard /> */}
-          <div style={{ color: 'orange', fontSize: 24, padding: 16 }}>
-            Dashboard would render here. If you uncomment it and see an error, check the error boundary output.
-          </div>
+          <Dashboard />
         </ErrorBoundary>
       </div>
     </div>
