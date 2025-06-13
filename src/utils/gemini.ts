@@ -1,4 +1,4 @@
-const GEMINI_API_KEY = "AIzaSyAOharVW1JmQmr4Mhivtum-zBjYEoDcR_M";
+const GEMINI_API_KEY = "AIzaSyA6U-9DyIqeOxJdgFOW1xEyDEEVl5rlaGg";
 
 export async function getGeminiMealSuggestions(prompt: string): Promise<string[]> {
   const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + GEMINI_API_KEY;
