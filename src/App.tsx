@@ -1,27 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { RouterProvider } from "react-router-dom";
-import { router } from "@/router";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-console.log('App.tsx loaded');
-const queryClient = new QueryClient();
 const App = () => {
-  console.log('App component rendered');
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <AuthProvider>
-            <Toaster />
-            <Sonner />
-            <RouterProvider router={router} />
-          </AuthProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <div style={{ color: 'green', fontSize: 32, padding: 32 }}>
+      Minimal Render Test: If you see this, React is working.
+    </div>
   );
 };
 export default App;
