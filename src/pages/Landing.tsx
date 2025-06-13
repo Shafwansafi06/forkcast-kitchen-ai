@@ -303,24 +303,28 @@ const Landing = () => {
     </div>
   );
 
-  return (
-    <>
-      <div style={{ display: step === 'welcome' ? 'block' : 'none' }}>
-        <WelcomeStep />
-      </div>
-      <div style={{ display: step === 'preferences' ? 'block' : 'none' }}>
-        <PreferencesStep />
-      </div>
-      <div style={{ display: step === 'subscription' ? 'block' : 'none' }}>
-        <SubscriptionStep />
-      </div>
-      <div style={{ display: step === 'auth' ? 'block' : 'none' }}>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
-          <AuthForm mode={authMode} onToggleMode={() => setAuthMode(prev => prev === 'signin' ? 'signup' : 'signin')} />
+  try {
+    return (
+      <>
+        <div style={{ display: step === 'welcome' ? 'block' : 'none' }}>
+          <WelcomeStep />
         </div>
-      </div>
-    </>
-  );
+        <div style={{ display: step === 'preferences' ? 'block' : 'none' }}>
+          <PreferencesStep />
+        </div>
+        <div style={{ display: step === 'subscription' ? 'block' : 'none' }}>
+          <SubscriptionStep />
+        </div>
+        <div style={{ display: step === 'auth' ? 'block' : 'none' }}>
+          <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+            <AuthForm mode={authMode} onToggleMode={() => setAuthMode(prev => prev === 'signin' ? 'signup' : 'signin')} />
+          </div>
+        </div>
+      </>
+    );
+  } catch (e) {
+    return <div style={{ color: 'red', padding: 32 }}><h1>Fatal error in Landing.tsx</h1><pre>{e instanceof Error ? e.stack : String(e)}</pre></div>;
+  }
 };
 
 export default Landing;
