@@ -8,7 +8,10 @@ import { ChefHat, Sparkles, Clock, DollarSign, Users, Check } from 'lucide-react
 import React from 'react';
 import AuthForm from '@/components/auth/AuthForm';
 
+console.log('Landing.tsx loaded');
+
 const Landing = () => {
+  console.log('Landing component rendered');
   const { signIn, signUp } = useAuth();
   const [step, setStep] = useState('welcome'); // welcome, preferences, subscription, auth
   const [preferences, setPreferences] = useState({

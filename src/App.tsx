@@ -5,19 +5,23 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { RouterProvider } from "react-router-dom";
 import { router } from "@/router";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 console.log('App.tsx loaded');
 const queryClient = new QueryClient();
 const App = () => {
+  console.log('App component rendered');
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <RouterProvider router={router} />
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <RouterProvider router={router} />
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 export default App;
