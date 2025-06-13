@@ -16,10 +16,10 @@ const Dashboard = () => {
   const { profile, updateProfile } = useProfile();
   const [recentMeals, setRecentMeals] = useState([]);
   const [weeklyStats, setWeeklyStats] = useState({
-    mealsPlanned: 12,
-    groceryLists: 3,
-    budgetSaved: 45.23,
-    recipesTried: 8
+    mealsPlanned: 0,
+    groceryLists: 0,
+    budgetSaved: 0,
+    recipesTried: 0
   });
   const [geminiSuggestions, setGeminiSuggestions] = useState<string[]>([]);
   const [geminiLoading, setGeminiLoading] = useState(false);
@@ -41,38 +41,29 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch user-specific stats from Supabase
-    const fetchStats = async () => {
-      if (!profile?.id) return;
-      // Meals Planned
-      const { count: mealPlans } = await supabase
-        .from('meal_plans')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile.id);
-      // Grocery Lists
-      const { count: groceryLists } = await supabase
-        .from('grocery_lists')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile.id);
-      // Recipes Tried
+    // Fetch user-specific stats from localStorage (except recipesTried)
+    if (!profile?.id) return;
+    const userId = profile.id;
+    const mealPlansKey = `forkcast_meal_plans_count_${userId}`;
+    const groceryKey = `forkcast_grocery_lists_count_${userId}`;
+    const budgetKey = `forkcast_budget_saved_${userId}`;
+    const mealsPlanned = parseInt(localStorage.getItem(mealPlansKey) || '0', 10);
+    const groceryLists = parseInt(localStorage.getItem(groceryKey) || '0', 10);
+    const budgetSaved = parseFloat(localStorage.getItem(budgetKey) || '0');
+    // Recipes Tried (keep Supabase logic)
+    const fetchRecipesTried = async () => {
       const { count: recipesTried } = await supabase
         .from('recipes_tried')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', profile.id);
-      // Budget Saved (sum)
-      const { data: budgetRows } = await supabase
-        .from('budget_savings')
-        .select('amount')
-        .eq('user_id', profile.id);
-      const budgetSaved = budgetRows?.reduce((sum, row) => sum + (row.amount || 0), 0) || 0;
       setWeeklyStats({
-        mealsPlanned: mealPlans || 0,
-        groceryLists: groceryLists || 0,
+        mealsPlanned,
+        groceryLists,
         budgetSaved,
         recipesTried: recipesTried || 0
       });
     };
-    fetchStats();
+    fetchRecipesTried();
   }, [profile]);
 
   const fetchGeminiSuggestions = async () => {

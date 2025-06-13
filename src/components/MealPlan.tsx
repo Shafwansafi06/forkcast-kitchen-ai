@@ -116,6 +116,15 @@ const MealPlan = () => {
       }
       setMealPlan(newMealPlan);
       localStorage.setItem('forkcast_meal_plan', JSON.stringify(newMealPlan));
+      // --- Update localStorage stats ---
+      const userId = profile?.id || '';
+      const mealPlansKey = `forkcast_meal_plans_count_${userId}`;
+      const budgetKey = `forkcast_budget_saved_${userId}`;
+      const mealPlansCount = parseInt(localStorage.getItem(mealPlansKey) || '0', 10) + 1;
+      localStorage.setItem(mealPlansKey, mealPlansCount.toString());
+      const prevBudget = parseFloat(localStorage.getItem(budgetKey) || '0');
+      localStorage.setItem(budgetKey, (prevBudget + weeklyBudget[0]).toString());
+      // ---
       toast.success('Meal plan generated successfully! 🍽️');
     } catch (error) {
       console.error('Error generating meal plan:', error);

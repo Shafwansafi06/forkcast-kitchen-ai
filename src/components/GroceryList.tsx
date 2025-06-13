@@ -8,8 +8,10 @@ import { toast } from "sonner";
 import { ShoppingCart, Plus, Search, MapPin } from "lucide-react";
 import { getGeminiGroceryListFromMealPlanDayWise } from '@/utils/gemini';
 import ReactMarkdown from 'react-markdown';
+import { useProfile } from "@/hooks/useProfile";
 
 const GroceryList = () => {
+  const { profile } = useProfile();
   const [groceryPlan, setGroceryPlan] = useState<any | null>(null);
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -27,6 +29,10 @@ const GroceryList = () => {
       const mealPlan = JSON.parse(mealPlanStr);
       const groceries = await getGeminiGroceryListFromMealPlanDayWise(mealPlan);
       setGroceryPlan(groceries);
+      const userId = profile?.id || '';
+      const groceryKey = `forkcast_grocery_lists_count_${userId}`;
+      const groceryCount = parseInt(localStorage.getItem(groceryKey) || '0', 10) + 1;
+      localStorage.setItem(groceryKey, groceryCount.toString());
       toast.success('Grocery list imported from meal plan!');
     } catch (err: any) {
       setImportError(err.message || 'Failed to import grocery list.');
