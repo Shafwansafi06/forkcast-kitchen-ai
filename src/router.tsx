@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
+import Landing from "@/pages/Landing";
 import Index from "@/pages/Index";
 
 const NotFound = () => (
@@ -8,6 +9,10 @@ const NotFound = () => (
 );
 
 export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Landing />,
+  },
   {
     path: "/dashboard",
     element: <Index />,
