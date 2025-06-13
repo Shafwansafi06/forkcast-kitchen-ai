@@ -11,8 +11,11 @@ const Index = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
       <Sidebar activeTab="dashboard" onTabChange={() => {}} />
-      <div style={{ color: 'blue', fontSize: 32, padding: 32 }}>
-        Minimal Dashboard Render Test: If you see this, Index.tsx and Sidebar are working.
+      <div style={{ flex: 1 }}>
+        <div style={{ color: 'blue', fontSize: 32, padding: 32 }}>
+          Minimal Dashboard Render Test: If you see this, Index.tsx and Sidebar are working.
+        </div>
+        <Dashboard />
       </div>
     </div>
   );
