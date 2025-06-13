@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
+import { getGeminiRecipeStepsAndTime } from '@/utils/gemini';
 
 const RecipeMaker = () => {
   const location = useLocation();
@@ -9,15 +10,33 @@ const RecipeMaker = () => {
   const prefill = location.state?.recipe || {};
   const name = prefill.name || '';
   const ingredients = prefill.ingredients || [];
-  const steps = Array.isArray(prefill.steps) ? prefill.steps : (typeof prefill.steps === 'string' ? prefill.steps.split(/\n|\r|\d+\./).map(s => s.trim()).filter(Boolean) : []);
-  const cookingTime = prefill.cookingTime || 0;
   const tags = prefill.tags || [];
 
-  // Step-by-step navigation
+  // Step-by-step navigation and Gemini fetch
+  const [steps, setSteps] = useState<Array<string>>(Array.isArray(prefill.steps) ? prefill.steps : (typeof prefill.steps === 'string' ? prefill.steps.split(/\n|\r|\d+\./).map(s => s.trim()).filter(Boolean) : []));
+  const [cookingTime, setCookingTime] = useState<number>(prefill.cookingTime || 0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   // Timer logic
-  const [timer, setTimer] = useState(cookingTime * 60);
+  const [timer, setTimer] = useState((prefill.cookingTime || 0) * 60);
   const [timerActive, setTimerActive] = useState(false);
+
+  useEffect(() => {
+    if ((!steps.length || !cookingTime) && name) {
+      setLoading(true);
+      setError(null);
+      getGeminiRecipeStepsAndTime(name)
+        .then(({ steps: fetchedSteps, cookingTime: fetchedTime }) => {
+          setSteps(fetchedSteps);
+          setCookingTime(fetchedTime);
+          setTimer(fetchedTime * 60);
+        })
+        .catch((err) => setError('Failed to fetch recipe steps.'))
+        .finally(() => setLoading(false));
+    }
+    // eslint-disable-next-line
+  }, [name]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -29,6 +48,21 @@ const RecipeMaker = () => {
   }, [timerActive, timer]);
 
   const formatTimer = (t: number) => `${Math.floor(t / 60)}:${(t % 60).toString().padStart(2, '0')}`;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <span className="text-white text-lg animate-pulse">Loading recipe steps...</span>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <span className="text-red-400 text-lg">{error}</span>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-2xl mx-auto animate-fade-in">

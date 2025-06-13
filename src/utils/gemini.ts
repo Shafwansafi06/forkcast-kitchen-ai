@@ -97,4 +97,23 @@ export async function getGeminiGroceryListFromMealPlanDayWise(mealPlan: object):
   const match = text.match(/\{[\s\S]*\}/);
   if (match) return JSON.parse(match[0]);
   throw new Error('Gemini did not return a valid grocery list.');
+}
+
+export async function getGeminiRecipeStepsAndTime(recipeName: string): Promise<{steps: string[], cookingTime: number}> {
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + GEMINI_API_KEY;
+  const prompt = `For the recipe '${recipeName}', provide a step-by-step cooking guide as a numbered list, and estimate the total cooking time in minutes. Reply with valid JSON: {\"steps\":[\"step 1\",...],\"cookingTime\":number}`;
+  const body = {
+    contents: [{ parts: [{ text: prompt }] }]
+  };
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
+  const data = await response.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const match = text.match(/\{[\s\S]*\}/);
+  if (match) return JSON.parse(match[0]);
+  throw new Error('Gemini did not return valid steps JSON.');
 } 
