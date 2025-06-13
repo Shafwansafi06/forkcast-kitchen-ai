@@ -3,6 +3,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { RouterProvider } from "react-router-dom";
+import { router } from "@/router";
 const queryClient = new QueryClient();
 const App = () => {
   return (
@@ -11,9 +13,7 @@ const App = () => {
         <AuthProvider>
           <Toaster />
           <Sonner />
-          <div style={{ color: 'green', fontSize: 32, padding: 32 }}>
-            Toaster/Sonner: If you see this, both are working.
-          </div>
+          <RouterProvider router={router} />
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
