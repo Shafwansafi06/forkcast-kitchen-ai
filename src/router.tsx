@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import Landing from "@/pages/Landing";
 import Index from "@/pages/Index";
+import AuthCallback from "@/pages/AuthCallback";
 
 const NotFound = () => (
   <div style={{ color: 'red', fontSize: 32, padding: 32 }}>
@@ -16,6 +17,10 @@ export const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Index />,
+  },
+  {
+    path: "/auth/callback",
+    element: <AuthCallback />,
   },
   {
     path: "*",
