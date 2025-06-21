@@ -291,7 +291,7 @@ const Settings = () => {
               <div>
                 <div className="text-slate-300 font-medium text-lg">Current Plan</div>
                 <div className="text-slate-400 text-base">
-                  {profile.subscription_tier === 'pro' ? 'Pro Plan - Unlimited meal plans' : isTrialActive(profile) ? 'Free Trial - All features unlocked' : 'Free Plan - 1 meal plan per week'}
+                  {profile.subscription_tier === 'pro' ? 'Pro Plan - Unlimited meal plans' : isTrialActive(profile) ? 'Free Trial - All features unlocked' : (profile.subscription_tier === 'trial' ? 'Trial expired - Upgrade to Pro to continue unlimited access' : 'Free Plan - 1 meal plan per week')}
                 </div>
               </div>
             </div>
@@ -305,7 +305,13 @@ const Settings = () => {
                 </p>
               </div>
             )}
-            {!hasProAccess(profile) && !isTrialActive(profile) && (
+            {!hasProAccess(profile) && !isTrialActive(profile) && profile.subscription_tier === 'trial' && (
+              <div className="mt-6 flex flex-col items-center w-full">
+                <p className="text-red-400 mb-3 text-center text-lg font-semibold">Your free trial has ended. Upgrade to Pro to unlock all features!</p>
+                <div id="kofi-widget-container" className="flex justify-center w-full"></div>
+              </div>
+            )}
+            {!hasProAccess(profile) && !isTrialActive(profile) && profile.subscription_tier !== 'trial' && (
               <div className="mt-6 flex flex-col items-center w-full">
                 <p className="text-slate-300 mb-3 text-center text-lg">Upgrade to Pro for unlimited features!</p>
                 <div id="kofi-widget-container" className="flex justify-center w-full"></div>

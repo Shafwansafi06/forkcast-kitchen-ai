@@ -107,6 +107,11 @@ const Dashboard = () => {
               <span className="text-yellow-400 font-medium text-sm">Pro Member - All Features Unlocked</span>
             </div>
           )}
+          {profile?.subscription_tier === 'trial' && profile?.trial_end && new Date(profile.trial_end) < new Date() && (
+            <div className="flex items-center gap-2 mt-3">
+              <span className="text-red-400 font-medium text-sm">Your free trial has ended. Upgrade to Pro in Settings to unlock all features!</span>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
