@@ -134,7 +134,7 @@ const MealPlan = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">Generate New Meal Plan</h1>

@@ -66,7 +66,7 @@ const RecipeMaker = () => {
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto animate-fade-in">
+    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen p-6 max-w-2xl mx-auto animate-fade-in">
       <Card className="bg-slate-800/80 border-slate-700 shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-white text-2xl flex items-center gap-2">

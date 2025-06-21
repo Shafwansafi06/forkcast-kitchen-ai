@@ -158,7 +158,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-2 sm:p-4 max-w-2xl mx-auto w-full animate-fade-in">
+    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen flex flex-col gap-8 p-2 sm:p-4 max-w-2xl mx-auto w-full animate-fade-in">
       {/* Profile */}
       <Card className="bg-slate-800/50 border-slate-700 w-full mb-2">
         <CardContent className="p-4 sm:p-6 flex flex-col gap-4 sm:flex-row sm:gap-8">
