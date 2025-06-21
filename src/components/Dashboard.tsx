@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { Calendar, ChefHat, ShoppingCart, TrendingUp, Sparkles, Clock, List, DollarSign } from "lucide-react";
 import { getGeminiMealSuggestions } from '@/utils/gemini';
 import { createClient } from '@supabase/supabase-js';
+import { useNavigate } from 'react-router-dom';
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -24,6 +25,7 @@ const Dashboard = () => {
   const [geminiSuggestions, setGeminiSuggestions] = useState<string[]>([]);
   const [geminiLoading, setGeminiLoading] = useState(false);
   const [geminiError, setGeminiError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Fetch recent meals from Spoonacular API
   useEffect(() => {
@@ -77,13 +79,6 @@ const Dashboard = () => {
     } finally {
       setGeminiLoading(false);
     }
-  };
-
-  const handleTabChange = (tab: string) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', tab);
-    window.history.pushState({}, '', url);
-    window.location.reload();
   };
 
   return (
@@ -218,28 +213,28 @@ const Dashboard = () => {
             <div className="space-y-3">
               <Button 
                 className="w-full justify-start bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                onClick={() => handleTabChange('meal-plan')}
+                onClick={() => navigate('/meal-plan')}
               >
                 <Calendar className="w-4 h-4 mr-2" />
                 Plan this week's meals
               </Button>
               <Button 
                 className="w-full justify-start bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                onClick={() => handleTabChange('grocery-list')}
+                onClick={() => navigate('/grocery-list')}
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 Generate grocery list
               </Button>
               <Button 
                 className="w-full justify-start bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                onClick={() => handleTabChange('recipe-maker')}
+                onClick={() => navigate('/recipe-maker')}
               >
                 <ChefHat className="w-4 h-4 mr-2" />
                 Browse recipes
               </Button>
               <Button 
                 className="w-full justify-start bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                onClick={() => handleTabChange('settings')}
+                onClick={() => navigate('/settings')}
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Update preferences

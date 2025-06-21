@@ -6,24 +6,21 @@ import { useProfile } from "@/hooks/useProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
-interface SidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-}
-
-const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
+const Sidebar = () => {
   const { signOut } = useAuth();
   const { profile } = useProfile();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const location = useLocation();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'meal-plan', label: 'Meal Plan', icon: Calendar },
-    { id: 'grocery-list', label: 'Grocery List', icon: ShoppingCart },
-    { id: 'recipe-maker', label: 'Recipe Maker', icon: ChefHat },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, path: '/dashboard' },
+    { id: 'meal-plan', label: 'Meal Plan', icon: Calendar, path: '/meal-plan' },
+    { id: 'grocery-list', label: 'Grocery List', icon: ShoppingCart, path: '/grocery-list' },
+    { id: 'recipe-maker', label: 'Recipe Maker', icon: ChefHat, path: '/recipe-maker' },
+    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   const handleSignOut = async () => {
@@ -57,24 +54,21 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
         </div>
       )}
       
-      <nav className="space-y-2 flex-1">
-        {menuItems.map((item) => (
-          <Button
-            key={item.id}
-            variant="ghost"
-            className={cn(
-              "w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all duration-200 text-lg py-3",
-              activeTab === item.id && "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white border-l-2 border-blue-500"
-            )}
-            onClick={() => {
-              onTabChange(item.id);
-              if (isMobile) setOpen(false);
-            }}
-          >
-            <item.icon className="w-5 h-5 mr-3" />
-            {item.label}
-          </Button>
-        ))}
+      <nav className="flex-1 flex flex-col gap-2">
+        {menuItems.map(item => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.id}
+              to={item.path}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-lg transition-colors ${isActive ? 'bg-blue-700 text-white' : 'text-slate-300 hover:bg-slate-800'}`}
+            >
+              <Icon className="w-5 h-5" />
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
       
       <div className="space-y-2 mt-4">

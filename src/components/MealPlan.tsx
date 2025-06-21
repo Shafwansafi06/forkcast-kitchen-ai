@@ -289,7 +289,7 @@ const MealPlan = () => {
                         <div
                           key={mealType}
                           className="bg-slate-700/50 rounded-lg p-3 relative group cursor-pointer hover:ring-2 hover:ring-blue-400 transition"
-                          onClick={() => navigate('/dashboard?tab=recipe-maker', { state: { recipe: { name: meal, cookingTime: time } } })}
+                          onClick={() => navigate('/recipe-maker', { state: { recipe: { name: meal, cookingTime: time } } })}
                         >
                           {diff && <DifficultyBadge difficulty={diff} />}
                           <div className="text-xs text-slate-400 mb-1">{mealType}</div>

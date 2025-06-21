@@ -6,8 +6,9 @@ import { getGeminiRecipeStepsAndTime } from '@/utils/gemini';
 
 const RecipeMaker = () => {
   const location = useLocation();
+  const recipeFromMealPlan = location.state?.recipe;
   // Prefill all data from navigation state
-  const prefill = location.state?.recipe || {};
+  const prefill = recipeFromMealPlan || {};
   const name = prefill.name || '';
   const ingredients = prefill.ingredients || [];
   const tags = prefill.tags || [];

@@ -1,13 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
 import Landing from "@/pages/Landing";
-import Index from "@/pages/Index";
+import Dashboard from "@/components/Dashboard";
+import MealPlan from "@/components/MealPlan";
+import GroceryList from "@/components/GroceryList";
+import RecipeMaker from "@/components/RecipeMaker";
+import Settings from "@/components/Settings";
 import AuthCallback from "@/pages/AuthCallback";
-
-const NotFound = () => (
-  <div style={{ color: 'red', fontSize: 32, padding: 32 }}>
-    404 Not Found (from router)
-  </div>
-);
+import NotFound from "@/pages/NotFound";
 
 export const router = createBrowserRouter([
   {
@@ -16,7 +15,23 @@ export const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Index />,
+    element: <Dashboard />,
+  },
+  {
+    path: "/meal-plan",
+    element: <MealPlan />,
+  },
+  {
+    path: "/grocery-list",
+    element: <GroceryList />,
+  },
+  {
+    path: "/recipe-maker",
+    element: <RecipeMaker />,
+  },
+  {
+    path: "/settings",
+    element: <Settings />,
   },
   {
     path: "/auth/callback",
