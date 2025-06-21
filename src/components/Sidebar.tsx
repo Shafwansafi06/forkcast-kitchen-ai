@@ -63,6 +63,7 @@ const Sidebar = () => {
               key={item.id}
               to={item.path}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-lg transition-colors ${isActive ? 'bg-blue-700 text-white' : 'text-slate-300 hover:bg-slate-800'}`}
+              onClick={() => isMobile && setOpen(false)}
             >
               <Icon className="w-5 h-5" />
               {item.label}
@@ -87,26 +88,25 @@ const Sidebar = () => {
     </div>
   );
 
-  if (isMobile) {
-    return (
-      <>
-        <button
-          className="fixed top-4 left-4 z-50 bg-slate-900/80 rounded-full p-2 shadow-lg border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onClick={() => setOpen(true)}
-          aria-label="Open sidebar"
-        >
-          <Menu className="w-7 h-7" />
-        </button>
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetContent side="left" className="p-0 w-64 max-w-full bg-slate-900/90 border-r border-slate-700">
-            {SidebarContent}
-          </SheetContent>
-        </Sheet>
-      </>
-    );
-  }
-
-  return SidebarContent;
+  return (
+    <>
+      <button
+        className="fixed top-4 left-4 z-50 bg-slate-900/80 rounded-full p-2 shadow-lg border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 md:hidden"
+        onClick={() => setOpen(true)}
+        aria-label="Open sidebar"
+      >
+        <Menu className="w-7 h-7" />
+      </button>
+      <div className="hidden md:block">
+        {SidebarContent}
+      </div>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="left" className="p-0 w-64 max-w-full bg-slate-900/90 border-r border-slate-700">
+          {SidebarContent}
+        </SheetContent>
+      </Sheet>
+    </>
+  );
 };
 
 export default Sidebar;

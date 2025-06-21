@@ -5,7 +5,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { ShoppingCart, Plus, Search, MapPin } from "lucide-react";
+import { ShoppingCart, Plus, Search, MapPin, Loader2 } from "lucide-react";
 import { getGeminiGroceryListFromMealPlanDayWise } from '@/utils/gemini';
 import ReactMarkdown from 'react-markdown';
 import { useProfile } from "@/hooks/useProfile";
@@ -71,6 +71,13 @@ const GroceryList = () => {
           </Button>
         </div>
       </div>
+
+      {importing && (
+        <div className="flex items-center justify-center min-h-[200px]">
+          <Loader2 className="w-10 h-10 text-blue-500 animate-spin mr-3" />
+          <span className="text-blue-300 text-lg">Importing from meal plan...</span>
+        </div>
+      )}
 
       {/* Render imported grocery plan if available */}
       {groceryPlan && (

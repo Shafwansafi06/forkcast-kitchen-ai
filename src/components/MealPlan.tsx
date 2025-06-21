@@ -24,6 +24,10 @@ function DifficultyBadge({ difficulty }) {
   );
 }
 
+const cuisineOptions = [
+  'American', 'Indian', 'Chinese', 'Italian', 'Mexican', 'Thai', 'Japanese', 'French', 'Mediterranean', 'Continental', 'Other'
+];
+
 const MealPlan = () => {
   const { profile } = useProfile();
   const [mealPlan, setMealPlan] = useState({});
@@ -42,6 +46,7 @@ const MealPlan = () => {
   const [allergies, setAllergies] = useState("");
   const navigate = useNavigate();
   const [mealDifficulties, setMealDifficulties] = useState({});
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -92,8 +97,11 @@ const MealPlan = () => {
       if (preferences.keto) dietaryRestrictions.push('keto');
       if (allergies.trim()) dietaryRestrictions.push(`allergic to: ${allergies}`);
 
+      // Build cuisine string
+      const cuisineString = selectedCuisines.length > 0 ? `Preferred cuisines: ${selectedCuisines.join(', ')}.` : '';
+
       // Compose stricter Gemini prompt
-      const prompt = `Generate a 7-day meal plan. For each day, list breakfast, lunch, and dinner, each with a unique meal name and calorie count. Use the following preferences: ${dietaryRestrictions.join(', ') || 'none'}. Calorie target: ${calorieTarget[0]} kcal/day. Protein target: ${proteinTarget[0]}g/day. Meal frequency: ${mealFrequency[0]} per day. Weekly budget: $${weeklyBudget[0]}. Cooking time limit: ${cookingTimeLimit} minutes.\n\nReply with only valid JSON, no explanation, no markdown, no code block, no comments. Do not include any text before or after the JSON. If you cannot generate a meal, use 'Not planned' and 0 for calories.\n\nFormat:\n{\n  \"Monday\": {\n    \"Breakfast\": {\"meal\": \"...\", \"calories\": ...},\n    \"Lunch\": {\"meal\": \"...\", \"calories\": ...},\n    \"Dinner\": {\"meal\": \"...\", \"calories\": ...}\n  },\n  ...\n}`;
+      const prompt = `Generate a 7-day meal plan. For each day, list breakfast, lunch, and dinner, each with a unique meal name and calorie count. Use the following preferences: ${dietaryRestrictions.join(', ') || 'none'}. ${cuisineString} Calorie target: ${calorieTarget[0]} kcal/day. Protein target: ${proteinTarget[0]}g/day. Meal frequency: ${mealFrequency[0]} per day. Weekly budget: $${weeklyBudget[0]}. Cooking time limit: ${cookingTimeLimit} minutes.\n\nReply with only valid JSON, no explanation, no markdown, no code block, no comments. Do not include any text before or after the JSON. If you cannot generate a meal, use 'Not planned' and 0 for calories.\n\nFormat:\n{\n  \"Monday\": {\n    \"Breakfast\": {\"meal\": \"...\", \"calories\": ...},\n    \"Lunch\": {\"meal\": \"...\", \"calories\": ...},\n    \"Dinner\": {\"meal\": \"...\", \"calories\": ...}\n  },\n  ...\n}`;
 
       const suggestions = await getGeminiMealSuggestions(prompt);
       // Join suggestions in case Gemini splits JSON over lines
@@ -158,6 +166,23 @@ const MealPlan = () => {
                   />
                   <span className="text-slate-300 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Cuisine Preferences */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Cuisine Preferences</h3>
+            <div className="flex flex-wrap gap-2">
+              {cuisineOptions.map((cuisine) => (
+                <button
+                  key={cuisine}
+                  type="button"
+                  className={`px-5 py-2 rounded-full border text-sm font-medium transition-colors duration-150 ${selectedCuisines.includes(cuisine) ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-blue-700 hover:text-white'}`}
+                  onClick={() => setSelectedCuisines((prev) => prev.includes(cuisine) ? prev.filter(c => c !== cuisine) : [...prev, cuisine])}
+                >
+                  {cuisine}
+                </button>
               ))}
             </div>
           </div>
