@@ -3,7 +3,7 @@ import Sidebar from "@/components/Sidebar";
 import Dashboard from "@/components/Dashboard";
 import MealPlan from "@/components/MealPlan";
 import GroceryList from "@/components/GroceryList";
-// import Settings from "@/components/Settings";
+import Settings from "@/components/Settings";
 import RecipeMaker from "@/components/RecipeMaker";
 import { Helmet } from "react-helmet";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -30,8 +30,8 @@ const Index = () => {
         return <GroceryList />;
       case 'recipe-maker':
         return <RecipeMaker />;
-      // case 'settings':
-      //   return <Settings />;
+      case 'settings':
+        return <Settings />;
       default:
         return <Dashboard />;
     }
