@@ -7,6 +7,7 @@ import RecipeMaker from "@/components/RecipeMaker";
 import Settings from "@/components/Settings";
 import AuthCallback from "@/pages/AuthCallback";
 import NotFound from "@/pages/NotFound";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export const router = createBrowserRouter([
   {
@@ -14,24 +15,14 @@ export const router = createBrowserRouter([
     element: <Landing />,
   },
   {
-    path: "/dashboard",
-    element: <Dashboard />,
-  },
-  {
-    path: "/meal-plan",
-    element: <MealPlan />,
-  },
-  {
-    path: "/grocery-list",
-    element: <GroceryList />,
-  },
-  {
-    path: "/recipe-maker",
-    element: <RecipeMaker />,
-  },
-  {
-    path: "/settings",
-    element: <Settings />,
+    element: <DashboardLayout><></></DashboardLayout>,
+    children: [
+      { path: "/dashboard", element: <Dashboard /> },
+      { path: "/meal-plan", element: <MealPlan /> },
+      { path: "/grocery-list", element: <GroceryList /> },
+      { path: "/recipe-maker", element: <RecipeMaker /> },
+      { path: "/settings", element: <Settings /> },
+    ],
   },
   {
     path: "/auth/callback",
